@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("sTWGraphicsDeviceInput.cdl");
+import("sTWGraphicsDeviceOutput.cdl");
+import("tTWRGBX32BitmapGraphicsRenderer.cdl");
+import("sTWSDLGraphicsDeviceControl.cdl");
+import("sTWSDLGraphicsDeviceEvent.cdl");
+
+celltype tTWSDLGraphicsDeviceCore
+{
+	entry sTWRenderTargetBitmapSource eBitmapSource;
+	call sTWGraphicsDeviceInput cInput;
+	entry sTWGraphicsDeviceOutput eOutput;
+	call sTWGraphicsDeviceOutput cOutput;
+
+	entry sTWSDLGraphicsDeviceControl eControl;
+	[optional] call sTWSDLGraphicsDeviceEvent cEvent;
+
+	attr {
+		uint16_t width;
+		uint16_t height;
+		const char *title;
+		uint32_t windowFlags;
+	};
+
+	var {
+		void *window;
+		void *surface;
+	};
+};
+
+/**
+ * Example implementation of graphics device for SDL (Simple DirectMedia Library).
+ * This is considered rather incomplete because it only covers basic usage;
+ * for example, it doesn't support multi-window application where some windows
+ * don't belong to tTWSDLGraphicsDevice.
+ */
+composite tTWSDLGraphicsDevice
+{
+	call sTWGraphicsDeviceInput cGraphicsDevice;
+	entry sTWGraphicsDeviceOutput eGraphicsDevice;
+
+	entry sTWSDLGraphicsDeviceControl eControl;
+	[optional] call sTWSDLGraphicsDeviceEvent cEvent;
+
+	attr {
+		uint16_t width;
+		uint16_t height;
+		const char *title;
+		uint32_t windowFlags;
+	};
+
+	cell tTWSDLGraphicsDeviceCore Core;
+	cell tTWRGBX32BitmapGraphicsRenderer Renderer;
+
+	cell tTWSDLGraphicsDeviceCore Core {
+		cInput => composite.cGraphicsDevice;
+		width = composite.width;
+		height = composite.height;
+		title = composite.title;
+		windowFlags = composite.windowFlags;
+		cOutput = Renderer.eGraphicsDeviceOutput;
+		cEvent => composite.cEvent;
+	};
+	cell tTWRGBX32BitmapGraphicsRenderer Renderer {
+		cRenderTargetBitmapSource = Core.eBitmapSource;
+	};
+
+	eGraphicsDevice => Core.eOutput;
+	eControl => Core.eControl;
+};

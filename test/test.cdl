@@ -1,0 +1,116 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTecs.cdl");
+
+import("tSimpleButton.cdl");
+
+cell tTWSDLGraphicsDevice SDL {
+	width = 120;
+	height = 120;
+	title = "Hello World!";
+	windowFlags = C_EXP("0");
+};
+
+cell tTWDesktop Desktop {
+	cGraphicsDevice = SDL.eGraphicsDevice;
+	eGraphicsDevice <= SDL.cGraphicsDevice;
+};
+
+celltype tMainWindowCore {
+	entry sTWPaintEvent ePaintEvent;
+	call sTWDrawingContext cDC;
+
+	entry sAction eButtonActivated[3];
+};
+
+cell tSimpleButton Button1;
+
+cell tMainWindowCore Core;
+
+cell tTWStaticRectSource View_Bounds {
+	x = 0; y = 0; w = 120; h = 120;
+};
+cell tTWStaticViewStyleSource View_Style {
+	value = C_EXP("TWViewStyleVisible");
+};
+
+cell tTWView View {
+	cSuperview = Desktop.eSubview;
+	eSuperview <= Desktop.cSubview;
+	cDesktopLink = Desktop.eDesktopLink;
+
+	cBoundsSource = View_Bounds.eSource;
+	cStyleSource = View_Style.eSource;
+
+	cPaintEvent = Core.ePaintEvent;
+};
+
+cell tMainWindowCore Core {
+	cDC = View.eDrawingContext;
+};
+
+cell tTWStaticRectSource Button1_Bounds {
+	x = 20; y = 20; w = 80; h = 20;
+};
+cell tTWStaticRectSource Button2_Bounds {
+	x = 20; y = 50; w = 80; h = 20;
+};
+cell tTWStaticRectSource Button3_Bounds {
+	x = 20; y = 80; w = 80; h = 20;
+};
+cell tTWStaticViewStyleSource Button_Style {
+	value = C_EXP("TWViewStyleVisible");
+};
+cell tSimpleButton Button1 {
+	cSuperview = View.eSubview[0];
+	eSuperview <= View.cSubview[0];
+
+	cDesktopLink = Desktop.eDesktopLink;
+
+	cBoundsSource = Button1_Bounds.eSource;
+	cStyleSource = Button_Style.eSource;
+
+	cAction = Core.eButtonActivated[0];
+};
+cell tSimpleButton Button2 {
+	cSuperview = View.eSubview[1];
+	eSuperview <= View.cSubview[1];
+
+	cDesktopLink = Desktop.eDesktopLink;
+
+	cBoundsSource = Button2_Bounds.eSource;
+	cStyleSource = Button_Style.eSource;
+
+	cAction = Core.eButtonActivated[1];
+};
+cell tSimpleButton Button3 {
+	cSuperview = View.eSubview[2];
+	eSuperview <= View.cSubview[2];
+
+	cDesktopLink = Desktop.eDesktopLink;
+
+	cBoundsSource = Button3_Bounds.eSource;
+	cStyleSource = Button_Style.eSource;
+
+	cAction = Core.eButtonActivated[2];
+};
+
+[active, singleton]
+celltype tTestApp {
+	call sTWSDLGraphicsDeviceControl cSDL;
+	entry sTWSDLGraphicsDeviceEvent eSDL;
+
+	call sTWDesktopControl cDesktop;
+};
+
+cell tTestApp App {
+	cSDL = SDL.eControl;
+	eSDL <= SDL.cEvent;
+
+	cDesktop = Desktop.eDesktop;
+};

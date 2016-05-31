@@ -1,0 +1,22 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTypes.cdl");
+
+[callback]
+signature sTWValueSourceCallback
+{
+	/**
+	 * Called when the value is about to be changed.
+	 */
+	void changing(void);
+
+	/**
+	 * Called when the value was changed.
+	 */
+	void changed(void);
+};

@@ -1,0 +1,4 @@
+[callback]
+signature sAction {
+	void activated(void);
+};

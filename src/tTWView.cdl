@@ -1,0 +1,51 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTypes.cdl");
+import("sTWSubviewLink.cdl");
+import("sTWSuperviewLink.cdl");
+import("sTWViewControl.cdl");
+import("sTWDesktopLink.cdl");
+import("sTWMouseEvent.cdl");
+import("sTWKeyboardEvent.cdl");
+import("sTWFocusEvent.cdl");
+import("sTWPaintEvent.cdl");
+import("sTWViewStyleSource.cdl");
+import("sTWRectSource.cdl");
+import("sTWValueSourceCallback.cdl");
+import("sTWDrawingContext.cdl");
+
+celltype tTWView
+{
+	// Join these to the superview
+	[optional] call sTWSuperviewLink cSuperview;
+	entry sTWSubviewLink eSuperview;
+
+	// Join these to subviews
+	[optional] call sTWSubviewLink cSubview[];
+	entry sTWSuperviewLink eSubview[];
+
+	// Join this to the desktop
+	call sTWDesktopLink cDesktopLink;
+
+	// control
+	entry sTWViewControl eControl;
+	entry sTWDrawingContext eDrawingContext;
+
+	// events
+	[optional] call sTWMouseEvent cMouseEvent;
+	[optional] call sTWKeyboardEvent cKeyboardEvent;
+	[optional] call sTWFocusEvent cFocusEvent;
+	[optional] call sTWPaintEvent cPaintEvent;
+
+	// properties
+	call sTWViewStyleSource cStyleSource;
+	entry sTWValueSourceCallback eStyleSource;
+
+	call sTWRectSource cBoundsSource;
+	entry sTWValueSourceCallback eBoundsSource;
+};

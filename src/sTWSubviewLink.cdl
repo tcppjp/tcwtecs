@@ -1,0 +1,34 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTypes.cdl");
+
+/** 
+ * TCWTecs infrastructure. Do not call any members in the user application.
+ */
+[callback]
+signature sTWSubviewLink
+{
+	bool mouseDown([in] TWPoint point, [in] uint8_t button);
+	bool mouseMove([in] TWPoint point);
+	bool mouseUp([in] TWPoint point, [in] uint8_t button);
+	void keyDown([in] uint16_t keyCode);
+	void keyUp([in] uint16_t keyCode);
+
+	/**
+	 * @param clipRect Region to be updated (in global coordinate)
+	 * @param globalBounds Bounding rect of the caller (in global coordinate)
+	 */
+	void paint([in] const TWRect *clipRect, [in] const TWRect *globalBounds);
+
+	/**
+	 * @return A positive value means the view or a descendant have gained the focus.
+	 *         A negative value means the view or a descendant have lost the focus.
+	 *         0 means the focus didn't move betwee outside and inside of the view.
+	 */
+	int keyboardFocusTargetChanged([inout] void *newTarget, [inout] void *oldTarget);
+};

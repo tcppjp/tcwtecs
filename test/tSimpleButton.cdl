@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTecs.cdl");
+import("sAction.cdl");
+
+celltype tSimpleButtonCore {
+	entry sTWPaintEvent ePaintEvent;
+	entry sTWMouseEvent eMouseEvent;
+	entry sTWKeyboardEvent eKeyboardEvent;
+	entry sTWFocusEvent eFocusEvent;
+
+	call sTWRectSource cBoundsSource;
+	call sTWDrawingContext cDrawingContext;
+	call sTWViewControl cViewControl;
+
+	[optional] call sAction cAction;
+};
+
+composite tSimpleButton {
+	[optional] call sTWSuperviewLink cSuperview;
+	entry sTWSubviewLink eSuperview;
+	call sTWDesktopLink cDesktopLink;
+
+	call sTWViewStyleSource cStyleSource;
+	entry sTWValueSourceCallback eStyleSource;
+
+	call sTWRectSource cBoundsSource;
+	entry sTWValueSourceCallback eBoundsSource;
+
+	[optional] call sAction cAction;
+
+	cell tSimpleButtonCore Core;
+	cell tTWView View;
+
+	cell tSimpleButtonCore Core {
+		cBoundsSource => composite.cBoundsSource;
+		cAction => composite.cAction;
+		cDrawingContext = View.eDrawingContext;
+		cViewControl = View.eControl;
+	};
+
+	cell tTWView View {
+		cSuperview => composite.cSuperview;
+		cDesktopLink => composite.cDesktopLink;
+
+		cBoundsSource => composite.cBoundsSource;
+		cStyleSource => composite.cStyleSource;
+
+		cPaintEvent = Core.ePaintEvent;
+		cMouseEvent = Core.eMouseEvent;
+		cKeyboardEvent = Core.eKeyboardEvent;
+		cFocusEvent = Core.eFocusEvent;
+	};
+
+	composite.eSuperview => View.eSuperview;
+	composite.eStyleSource => View.eStyleSource;
+	composite.eBoundsSource => View.eBoundsSource;
+};
