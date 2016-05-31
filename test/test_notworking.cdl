@@ -7,7 +7,7 @@
 
 /*
  *  This CDL application is well-organized using composite celltypes, but
- *  doesn't work yet because of tecsgen's bad handling of composite celltypes.
+ *  doesn't work yet with the latest version (at the time of writing) of tecsgen.
  */
 
 import("TWTecs.cdl");
