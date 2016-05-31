@@ -1,0 +1,11 @@
+--- tecsgen/tecsgen/tecslib/core/generate.rb Tue May 31 13:45:43 2016
++++ tecsgen/tecsgen/tecslib/core/generate.rb Tue May 31 13:45:48 2016
+@@ -2696,7 +2696,7 @@
+             while( i < am.length )
+               j = am[i]
+               if j then
+-                if am[i].get_cell.get_celltype == self then
++                if am[i].get_cell.get_celltype == self || true then
+                   # 同じセルタイプへ結合している場合(VDES では type conflict になる)
+                   p = am[i].get_rhs_port
+                   des_type = "const struct tag_#{@global_name}_#{p.get_name}_DES"
