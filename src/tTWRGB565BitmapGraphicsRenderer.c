@@ -20,7 +20,7 @@
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
 #include <assert.h>
-#include "tTWRGBX32BitmapGraphicsRenderer_tecsgen.h"
+#include "tTWRGB565BitmapGraphicsRenderer_tecsgen.h"
 #include "TWPrivate.h"
 #include "tecsui/bitmap.h"
 #include "tecsui/geometry.h"
@@ -30,20 +30,15 @@
 #define	E_ID	(-18)	/* illegal ID */
 #endif
 
-static inline uint32_t TWColorToRGBX32(TWColor color) {
-	uint32_t ret = color.red;
-	ret |= ((uint32_t)color.green) << 8;
-	ret |= ((uint32_t)color.blue) << 16;
+static inline uint16_t TWColorToRGB565(TWColor color) {
+	uint16_t ret = (color.red + 4) >> 3;
+	ret |= ((uint16_t)((color.green + 2) >> 2)) << 5;
+	ret |= ((uint16_t)((color.blue + 4) >> 3)) << 11;
 	return ret;
 }
 
-static inline uint32_t RGB565ToRGBX32(uint16_t rgb565) {
-	uint32_t ret = (rgb565 & 31) << 3;
-	ret |= ((uint32_t)(rgb565 & 0xf800)) << 8;
-	ret |= (ret & 0xe000e0) >> 5;
-	ret |= ((uint32_t)(rgb565 & 0x7e0)) << 5;
-	ret |= ((uint32_t)(rgb565 & 0x600)) >> 1;
-	return ret;
+static inline uint16_t RGBX32ToRGB565(uint32_t rgbx32) {
+
 }
 
 /* entry port function #_TEPF_# */
@@ -55,7 +50,7 @@ static inline uint32_t RGB565ToRGBX32(uint16_t rgb565) {
 
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_getScreenSize
  * name:         eGraphicsDeviceOutput_getScreenSize
- * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_getScreenSize
+ * global_name:  tTWRGB565BitmapGraphicsRenderer_eGraphicsDeviceOutput_getScreenSize
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -70,7 +65,7 @@ eGraphicsDeviceOutput_getScreenSize(CELLIDX idx, TWSize* outSize)
 
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_setScissorRect
  * name:         eGraphicsDeviceOutput_setScissorRect
- * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_setScissorRect
+ * global_name:  tTWRGB565BitmapGraphicsRenderer_eGraphicsDeviceOutput_setScissorRect
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
@@ -85,14 +80,14 @@ eGraphicsDeviceOutput_setScissorRect(CELLIDX idx, const TWRect* rect)
 
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_fillRect
  * name:         eGraphicsDeviceOutput_fillRect
- * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_fillRect
+ * global_name:  tTWRGB565BitmapGraphicsRenderer_eGraphicsDeviceOutput_fillRect
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
 eGraphicsDeviceOutput_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	uint32_t *pixels;
+	uint16_t *pixels;
 	uint16_t w, h;
 	cRenderTargetBitmapSource_get((void **)&pixels, NULL, &w, &h);
 
@@ -109,7 +104,7 @@ eGraphicsDeviceOutput_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
 	pixels += x1 + y1 * w;
 
 	int rw = x2 - x1, rh = y2 - y1;
-	uint32_t pixel = TWColorToRGBX32(color);
+	uint32_t pixel = TWColorToRGB565(color);
 
 	for (int y = 0; y < rh; ++y) {
 		for (int x = 0; x < rw; ++x) {
@@ -121,7 +116,7 @@ eGraphicsDeviceOutput_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
 
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_drawBitmap
  * name:         eGraphicsDeviceOutput_drawBitmap
- * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_drawBitmap
+ * global_name:  tTWRGB565BitmapGraphicsRenderer_eGraphicsDeviceOutput_drawBitmap
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
@@ -129,7 +124,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
-	uint32_t *pixels;
+	uint16_t *pixels;
 	uint16_t tgt_w, tgt_h;
 	cRenderTargetBitmapSource_get((void **)&pixels, NULL, &tgt_w, &tgt_h);
 
@@ -189,7 +184,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 	switch (format) {
 		case TWPixelFormat1bppMonotone: {
-			uint32_t pixel = TWColorToRGBX32(monoColor);
+			uint32_t pixel = TWColorToRGB565(monoColor);
 			data += in_x1 >> 3;
 
 			for (int y = out_y1; y < out_y2; ++y) {
@@ -217,7 +212,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 			uint32_t *in_pixels = (uint32_t *)data + in_x1;
 			for (int y = out_y1; y < out_y2; ++y) {
 				for (int x = out_x1; x < out_x2; ++x) {
-					*(pixels++) = *(in_pixels++);
+					*(pixels++) = RGBX32ToRGB565(*(in_pixels++));
 				}
 				pixels += tgt_w - (out_x2 - out_x1);
 				in_pixels += src_w - (out_x2 - out_x1);
@@ -227,10 +222,10 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 			break;
 		}
 		case TWPixelFormat16bppRGB565: {
-			uint32_t *in_pixels = (uint32_t *)data + in_x1;
+			uint16_t *in_pixels = (uint16_t *)data + in_x1;
 			for (int y = out_y1; y < out_y2; ++y) {
 				for (int x = out_x1; x < out_x2; ++x) {
-					*(pixels++) = RGB565ToRGBX32(*(in_pixels++));
+					*(pixels++) = *(in_pixels++);
 				}
 				pixels += tgt_w - (out_x2 - out_x1);
 				in_pixels += src_w - (out_x2 - out_x1);
@@ -248,7 +243,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_update
  * name:         eGraphicsDeviceOutput_update
- * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_update
+ * global_name:  tTWRGB565BitmapGraphicsRenderer_eGraphicsDeviceOutput_update
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
