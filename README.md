@@ -8,8 +8,6 @@ Building Example Project
 
 Before building the project, the directory that contains `tecsgen` (TECS generator) must be added to the `PATH` environment variable.
 
-Unfortunately, version 1.3.1.7 of `tecsgen`, which is the latest at the time of writing, fails to deal with some complex structures, which are always required when this toolkit is in use. So I attached some patch files that you can use to solve most, if not all, of compilation problems. You can find these patch files in the `patches` directory.
-
 Development package of [SDL2 library](https://www.libsdl.org/) is required to build the project.
 
 1. Move to the build directory by `cd test/build`
