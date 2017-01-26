@@ -13,6 +13,8 @@ size_t TWComputeBitmapStride(TWPixelFormat format, size_t width)
 	switch (format) {
 		case TWPixelFormat1bppMonotone:
 			return (width + 7) >> 3;
+        case TWPixelFormat16bppRGB565:
+            return width << 1;
 		case TWPixelFormat32bppRGBX:
 			return width << 2;
 		default:
