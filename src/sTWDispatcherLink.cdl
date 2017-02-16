@@ -1,0 +1,69 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import("TWTypes.cdl");
+
+/**
+ * TCWTecs infrastructure. Do not call any members in the user application.
+ * @internal
+ */
+signature sTWDispatcherLink {
+    /**
+     * GUIスレッドで、ディスパッチャの `sTWTimerManagerLink::handleDeferredDispatch` を呼出します。
+     * `sTWTimerManagerLink::handleDeferredDispatch` の呼出しが行われる前に、これが複数回呼び出されても、
+     * `sTWTimerManagerLink::handleDeferredDispatch` がその回数分呼び出される必要はなく、少なくとも1回呼び出される
+     * ことのみが保証されます。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     *
+     * `sTWDispatcherControl::invoke` と似ていますが、呼出しは非同期です (`sTWTimerManagerLink::handleDeferredDispatch`
+     * の呼出しが完了する前に返ります)。
+     *
+     * クリティカルセクション内で呼び出されます。
+     */
+    void startDeferredDispatch(void);
+
+    /**
+     * 指定時間後に、ディスパッチャの sTWTimerManagerLink::handleTimeout を呼出します。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     */
+    void setTimeout([in] TWDuration duration);
+
+    /**
+     * setTimeout の設定を取り消します。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     */
+    void clearTimeout(void);
+
+    /**
+     * クリティカルセクションの開始を要求します。クリティカルセクション中では、アプリケーションは (いかなるコンテクストにおいても)
+     * `tTWDeferredDispatch::eDeferredDispatch` への呼出しは行なえません。
+     *
+     * クリティカルセクションは再帰的であっても良いですが、そうでなくても問題ありません。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     */
+    void enterCriticalSection(void);
+
+    /**
+     * クリティカルセクションの終了を要求します。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     */
+    void leaveCriticalSection(void);
+
+    /**
+     * 時刻を取得します。基準とする時刻は任意ですが、それは変化してはいけません。また、取得される時刻は stable である必要があります。
+     *
+     * tTWTimerManager のみがこれを呼出します。
+     *
+     * @internal
+     */
+    TWTimePoint getTime(void);
+};

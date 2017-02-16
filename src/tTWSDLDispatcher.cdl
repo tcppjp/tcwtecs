@@ -1,11 +1,27 @@
 /*
- * Copyright (C) 2016 Tomoaki Kawada
+ * Copyright (C) 2017 Tomoaki Kawada
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
 
+import("sTWDispatcherControl.cdl");
+import("sTWDispatcherLink.cdl");
+import("sTWDispatchTarget.cdl");
+import("sTWTimerManagerLink.cdl");
+import("sTWSDLDispatcherControl.cdl");
+
+// It's singleton because SDL2 doesn't support multple event queues
+[singleton]
 celltype tTWSDLDispatcher
 {
-    // TODO: tTWSDLDispatcher
+    entry sTWDispatcherControl eDispatcher;
+    entry sTWSDLDispatcherControl eSDLDispatcher;
+
+    entry sTWDispatcherLink eDispatcherLink;
+
+    /** 内部的に使用されます。結合しないで下さい。*/
+    [optional, dynamic] call sTWDispatchTarget cTarget;
+
+    call sTWTimerManagerLink cTimerManager;
 };

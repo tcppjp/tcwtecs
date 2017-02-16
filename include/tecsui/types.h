@@ -28,6 +28,9 @@ typedef uint8_t TWViewStyle;
 
 #define TWViewStyleVisible			((TWViewStyle)(1 << 0))
 
+typedef int32_t TWDuration;
+typedef uint32_t TWTimePoint;
+
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */

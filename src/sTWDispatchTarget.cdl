@@ -1,0 +1,13 @@
+/*
+ * Copyright (C) 2016 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+signature sTWDispatchTarget {
+    /**
+     * `sTWDispatcherControl::invoke` や、遅延ディスパッチ、タイマにより、メインスレッドで呼び出される関数。
+     */
+    void main(intptr_t param);
+};

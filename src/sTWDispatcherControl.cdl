@@ -5,5 +5,21 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+import("sTWDispatchTarget.cdl");
+import("TWTypes.cdl");
+
 signature sTWDispatcherControl {
+    /**
+     * ディスパッチターゲットと引数を指定して、呼出しを行います。
+     *
+     * ターゲットは、指定された引数を使用して、GUIスレッドで呼び出されます。
+     * 本関数の呼出しは、ターゲットの呼出しが完了した後に返ります。
+     *
+     * 本関数によるディスパッチは同期的であり、従って割込みハンドラ等では使用できません。
+     * 割込みハンドラからディスパッチを行う場合、tTWDeferredDispatch を使用してください。
+     */
+    void invoke([in] Descriptor(sTWDispatchTarget) target, [in] intptr_t param);
+
+    // TODO: tryInvoke?
+    // TOOD: invokeSynchronized, beginInvoke, endInvoke?
 };

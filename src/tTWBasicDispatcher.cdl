@@ -5,7 +5,19 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+import("sTWDispatcherControl.cdl");
+import("sTWDispatchTarget.cdl");
+import("sTWDispatcherLink.cdl");
+import("sTWTimerManagerLink.cdl");
+
 celltype tTWBasicDispatcher
 {
-    // TODO: tTWBasicDispatcher
+    entry sTWDispatcherControl eDispatcher;
+
+    entry sTWDispatcherLink eDispatcherLink;
+
+    /** 内部的に使用されます。結合しないで下さい。*/
+    [optional, dynamic] call sTWDispatchTarget cTarget;
+
+    call sTWTimerManagerLink cTimerManager;
 };

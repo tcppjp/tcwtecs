@@ -1,0 +1,40 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import_C("TWPrivate.h");
+
+/**
+ * TCWTecs infrastructure. Do not call any members in the user application.
+ */
+[deviate]
+signature sTWTimerManagerLink {
+    /**
+     * Called by a timer.
+     *
+     * Prerequisite: `!(timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending))`
+     */
+    void registerTimer(TWTimerDescriptor *timer);
+
+    /**
+     * Called by a timer.
+     *
+     * Prerequisite: `timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending)`
+     */
+    void unregisterTimer(TWTimerDescriptor *timer);
+
+    /** Called by a deferred dispatch */
+    uint8_t registerDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param);
+
+    /** Called by a deferred dispatch */
+    uint8_t unregisterDeferredDispatch(TWDeferredDispatchDescriptor *dd);
+
+    /** Called by a dispatcher */
+    void handleTimeout(void);
+
+    /** Called by a dispatcher */
+    void handleDeferredDispatch(void);
+};

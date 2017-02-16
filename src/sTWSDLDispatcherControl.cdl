@@ -1,0 +1,35 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+signature sTWSDLDispatcherControl
+{
+    /**
+     * SDL2用ディスパッチャを初期化します。
+     *
+     * この呼出しを行う前に、`SDL_Init` または `SDL_InitSubSystem` を使用し、少なくとも `SDL_INIT_EVENTS`, `SDL_INIT_TIMER`
+     * サブシステムの初期化を行う必要があります。
+     *
+     * 本関数はメインスレッドでのみ呼び出せます。
+     */
+    void initialize(void);
+
+    /**
+     * メインイベントループを開始します。
+     *
+     * この関数は、`quit()` が呼び出されるか、`SDL_QUIT` イベントが発生するまで返りません。
+     *
+     * 本関数はメインスレッドでのみ呼び出せます。
+     */
+    void enterMainLoop(void);
+
+    /**
+     * イベントループを抜けさせます。
+     *
+     * 本関数は任意のスレッドで呼び出せます。
+     */
+    void quit(void);
+};
