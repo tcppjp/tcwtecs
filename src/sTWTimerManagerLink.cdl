@@ -10,21 +10,21 @@ import_C("TWPrivate.h");
 /**
  * TCWTecs infrastructure. Do not call any members in the user application.
  */
-[deviate]
+[deviate, callback]
 signature sTWTimerManagerLink {
     /**
      * Called by a timer.
      *
      * Prerequisite: `!(timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending))`
      */
-    void registerTimer(TWTimerDescriptor *timer);
+    void registerTimer([in] TWTimerDescriptor *timer);
 
     /**
      * Called by a timer.
      *
      * Prerequisite: `timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending)`
      */
-    void unregisterTimer(TWTimerDescriptor *timer);
+    void unregisterTimer([in] TWTimerDescriptor *timer);
 
     /** Called by a deferred dispatch */
     uint8_t registerDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param);

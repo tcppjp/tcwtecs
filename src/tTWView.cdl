@@ -38,7 +38,6 @@ celltype tTWView
 
 	// events
 	[optional] call sTWMouseEvent cMouseEvent;
-	[optional] call sTWKeyboardEvent cKeyboardEvent;
 	[optional] call sTWFocusEvent cFocusEvent;
 	[optional] call sTWPaintEvent cPaintEvent;
 

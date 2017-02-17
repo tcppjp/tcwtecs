@@ -10,12 +10,12 @@
  * These comment are used by tecsmerege when merging.
  *
  * attr access macro #_CAAM_#
- * width            uint16_t         ATTR_width      
- * height           uint16_t         ATTR_height     
- * title            const char*      ATTR_title      
+ * width            uint16_t         ATTR_width
+ * height           uint16_t         ATTR_height
+ * title            const char*      ATTR_title
  * windowFlags      uint32_t         ATTR_windowFlags
- * window           void*            VAR_window      
- * surface          void*            VAR_surface     
+ * window           void*            VAR_window
+ * surface          void*            VAR_surface
  *
  * call port function #_TCPF_#
  * call port: cInput signature: sTWGraphicsDeviceInput context:task
@@ -203,7 +203,7 @@ eControl_enterMainLoop(CELLIDX idx)
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
 	SDL_Window *wnd = GetSDLWindow(p_cellcb);
-	
+
 	SDL_Event e;
 	while (SDL_WaitEvent(&e)) {
 		switch (e.type) {
@@ -268,7 +268,7 @@ void
 eControl_quit(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	
+
 	SDL_Event ev;
 	memset(&ev, 0, sizeof(ev));
 	ev.type = TWSE_QUIT;

@@ -10,18 +10,40 @@ import("sTWDispatcherLink.cdl");
 import("sTWDispatchTarget.cdl");
 import("sTWTimerManagerLink.cdl");
 import("sTWSDLDispatcherControl.cdl");
+import("sTWSDLEvent.cdl");
 
 // It's singleton because SDL2 doesn't support multple event queues
 [singleton]
 celltype tTWSDLDispatcher
 {
+    /**
+     * ディスパッチャとしての機能を提供する受け口。
+     */
     entry sTWDispatcherControl eDispatcher;
+
+    /**
+     * `tTWSDLDispatcher` に固有の機能を提供する受け口。
+     */
     entry sTWSDLDispatcherControl eSDLDispatcher;
 
+    /**
+     * `tTWTimerManager::cDispatcherLink` と結合して下さい。
+     */
     entry sTWDispatcherLink eDispatcherLink;
 
-    /** 内部的に使用されます。結合しないで下さい。*/
-    [optional, dynamic] call sTWDispatchTarget cTarget;
-
+    /**
+     * `tTWTimerManager::eTimerManager` と結合して下さい。
+     */
     call sTWTimerManagerLink cTimerManager;
+
+    /**
+     * SDLイベントシステムを利用してイベントを受け取るための呼び口。
+     */
+    [optional] call sTWSDLEvent cSDLEvent[];
+
+    /**
+     * 内部的に使用されます。結合しないで下さい。
+     * @internal
+     */
+    [optional, dynamic] call sTWDispatchTarget cTarget;
 };

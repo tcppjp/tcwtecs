@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Tomoaki Kawada
+ * Copyright (C) 2017 Tomoaki Kawada
  *
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
@@ -7,6 +7,31 @@
 
 signature sTWKeyboardEvent
 {
+    /**
+     * キー押下時に呼び出されます。
+     *
+     * @param keyCode TODO
+     */
 	void keyDown([in] uint16_t keyCode);
+
+    /**
+     * キー解放時に呼び出されます。
+     *
+     * @param keyCode TODO
+     */
 	void keyUp([in] uint16_t keyCode);
+
+    /**
+     * キーボードフォーカス取得直後に呼び出されます。
+     *
+     * 注意: 本呼び出し中にキーボードフォーカス対象を変更する操作は現時点では未定義動作となります。
+     */
+    void enter(void);
+
+    /**
+     * キーボードフォーカス喪失直前に呼び出されます。
+     *
+     * 注意: 本呼び出し中にキーボードフォーカス対象を変更する操作は現時点では未定義動作となります。
+     */
+    void leave(void);
 };

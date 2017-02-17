@@ -1,0 +1,22 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This software may be modified and distributed under the terms
+ * of the MIT license.  See the LICENSE file for details.
+ */
+
+import_C(<SDL2/SDL.h>);
+
+/**
+ * SDLイベントシステムにおけるイベントの伝達に用いられるシグニチャ。
+ */
+[callback]
+signature sTWSDLEvent
+{
+    /**
+     * SDLイベントシステムのイベントキューにあるイベントを処理する。
+     *
+     * @return 処理できた場合は 0 以外を返す。処理できなかった場合は 0 を返す。
+     */
+    uint8_t handle([in] SDL_Event *event);
+};

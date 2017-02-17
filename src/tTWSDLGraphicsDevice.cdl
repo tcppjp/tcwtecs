@@ -9,17 +9,22 @@ import("sTWGraphicsDeviceInput.cdl");
 import("sTWGraphicsDeviceOutput.cdl");
 import("tTWRGBX32BitmapGraphicsRenderer.cdl");
 import("sTWSDLGraphicsDeviceControl.cdl");
-import("sTWSDLGraphicsDeviceEvent.cdl");
+import("sTWSDLEvent.cdl");
+import("sTWKeyboardInputManagerControl.cdl");
 
+/** @internal */
 celltype tTWSDLGraphicsDeviceCore
 {
 	entry sTWRenderTargetBitmapSource eBitmapSource;
-	call sTWGraphicsDeviceInput cInput;
+
 	entry sTWGraphicsDeviceOutput eOutput;
 	call sTWGraphicsDeviceOutput cOutput;
 
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
+
 	entry sTWSDLGraphicsDeviceControl eControl;
-	[optional] call sTWSDLGraphicsDeviceEvent cEvent;
+
+	entry sTWSDLEvent eSDLEvent; // TODO: implement this!
 
 	attr {
 		uint16_t width;
@@ -42,11 +47,12 @@ celltype tTWSDLGraphicsDeviceCore
  */
 composite tTWSDLGraphicsDevice
 {
-	call sTWGraphicsDeviceInput cGraphicsDevice;
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 	entry sTWGraphicsDeviceOutput eGraphicsDevice;
 
 	entry sTWSDLGraphicsDeviceControl eControl;
-	[optional] call sTWSDLGraphicsDeviceEvent cEvent;
+
+	entry sTWSDLEvent eSDLEvent;
 
 	attr {
 		uint16_t width;
@@ -59,13 +65,12 @@ composite tTWSDLGraphicsDevice
 	cell tTWRGBX32BitmapGraphicsRenderer Renderer;
 
 	cell tTWSDLGraphicsDeviceCore Core {
-		cInput => composite.cGraphicsDevice;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
 		width = composite.width;
 		height = composite.height;
 		title = composite.title;
 		windowFlags = composite.windowFlags;
 		cOutput = Renderer.eGraphicsDeviceOutput;
-		cEvent => composite.cEvent;
 	};
 	cell tTWRGBX32BitmapGraphicsRenderer Renderer {
 		cRenderTargetBitmapSource = Core.eBitmapSource;
@@ -73,4 +78,5 @@ composite tTWSDLGraphicsDevice
 
 	eGraphicsDevice => Core.eOutput;
 	eControl => Core.eControl;
+	eSDLEvent => Core.eSDLEvent;
 };

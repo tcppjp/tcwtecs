@@ -136,45 +136,15 @@ eSDLDispatcher_enterMainLoop(void)
 
     SDL_Event e;
     while (SDL_WaitEvent(&e)) {
+        for (int_t i = 0; i < NCP_cSDLEvent; ++i) {
+            if (cSDLEvent_handle(i, &e)) {
+                goto event_handler_end;
+            }
+        }
+
         switch (e.type) {
             case SDL_QUIT:
                 return;
-            case SDL_WINDOWEVENT:
-                if (e.window.windowID != SDL_GetWindowID(wnd)) {
-                    break;
-                }
-                switch (e.window.event) {
-                    case SDL_WINDOWEVENT_SIZE_CHANGED: {
-                        int new_w, new_h;
-                        SDL_GetWindowSize(wnd, &new_w, &new_h);
-
-                        SDL_FreeSurface(GetSDLSurface(p_cellcb));
-
-                        // FIXME: duplicated code
-                        SDL_Surface *surf = SDL_CreateRGBSurface(
-                            0, new_w, new_h, 32, 0xff, 0xff00, 0xff0000, 0);
-                        VAR_surface = (void *)surf;
-
-                        cInput_resize();
-                        break;
-                    }
-                }
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                cInput_mouseDown(TWMakePoint(e.button.x, e.button.y), e.button.button);
-                break;
-            case SDL_MOUSEBUTTONUP:
-                cInput_mouseUp(TWMakePoint(e.button.x, e.button.y), e.button.button);
-                break;
-            case SDL_MOUSEMOTION:
-                cInput_mouseMove(TWMakePoint(e.motion.x, e.motion.y));
-                break;
-            case SDL_KEYDOWN:
-                cInput_keyDown(e.key.keysym.sym);
-                break;
-            case SDL_KEYUP:
-                cInput_keyUp(e.key.keysym.sym);
-                break;
             case SDL_USEREVENT:
                 switch (e.user.code) {
                     case TWSE_TIMEOUT: {
@@ -200,9 +170,7 @@ eSDLDispatcher_enterMainLoop(void)
                 break;
         }
 
-        if (is_cEvent_joined()) {
-            cEvent_idle();
-        }
+      event_handler_end:;
     }
 }
 void

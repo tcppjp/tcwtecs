@@ -5,7 +5,13 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+import("sTWKeyboardInputManagerControl.cdl");
+import("sTWKeyboardEvent.cdl");
+
 celltype tTWKeyboardInputManager
 {
-    // TODO: tTWKeyboardInputManager
+    entry sTWKeyboardInputManagerControl eControl;
+
+    /** Used internally; do not make any attempt to join this to anything */
+    [dynamic, optional, ref_desc] call sTWKeyboardEvent cReceiver;
 };
