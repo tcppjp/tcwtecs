@@ -11,7 +11,6 @@ import("sAction.cdl");
 celltype tSimpleButtonCore {
 	entry sTWPaintEvent ePaintEvent;
 	entry sTWMouseEvent eMouseEvent;
-	entry sTWFocusEvent eFocusEvent;
 
 	// TODO: 本当は optional でいいけど、そうすると composite の非 optional な
 	//       call に接続できなくなってしまう! (tecsgen v1.4.0)
@@ -65,7 +64,6 @@ composite tSimpleButton {
 
 		cPaintEvent = Core.ePaintEvent;
 		cMouseEvent = Core.eMouseEvent;
-		cFocusEvent = Core.eFocusEvent;
 	};
 
 	composite.eSuperview => View.eSuperview;

@@ -10,6 +10,10 @@
  * These comment are used by tecsmerege when merging.
  *
  * call port function #_TCPF_#
+ * call port: cKeyboardInputManager signature: sTWKeyboardInputManagerControl context:task
+ *   void           cKeyboardInputManager_setEventReceiver( Descriptor( sTWKeyboardEvent ) receiver );
+ *   void           cKeyboardInputManager_clearEventReceiver( );
+ *   uint8_t        cKeyboardInputManager_isEventReceiver( Descriptor( sTWKeyboardEvent ) receiver );
  * call port: cBoundsSource signature: sTWRectSource context:task
  *   void           cBoundsSource_get( TWRect* outRect );
  * call port: cDrawingContext signature: sTWDrawingContext context:task
@@ -20,14 +24,20 @@
  *   void           cViewControl_getBounds( TWRect* outRect );
  *   void           cViewControl_getGlobalBounds( TWRect* outRect );
  *   void           cViewControl_setNeedsUpdate( );
- *   void           cViewControl_setFocus( );
- *   bool           cViewControl_isFocused( );
  *   void           cViewControl_setMouseCapture( );
  *   void           cViewControl_releaseMouseCapture( );
  *   bool           cViewControl_hasMouseCapture( );
  * call port: cAction signature: sAction context:task optional:true
  *   bool_t     is_cAction_joined()                     check if joined
  *   void           cAction_activated( );
+ * call port: cKeyboardEvent signature: sTWKeyboardEvent context:task
+ *   void           cKeyboardEvent_keyDown( uint16_t keyCode );
+ *   void           cKeyboardEvent_keyUp( uint16_t keyCode );
+ *   void           cKeyboardEvent_enter( );
+ *   void           cKeyboardEvent_leave( );
+ *   [ref_desc]
+ *      Descriptor( sTWKeyboardEvent ) cKeyboardEvent_refer_to_descriptor();
+ *      Descriptor( sTWKeyboardEvent ) cKeyboardEvent_ref_desc()      (same as above; abbreviated version);
  *
  * #[</PREAMBLE>]# */
 
@@ -55,7 +65,7 @@ void
 ePaintEvent_paint(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	
+
 	TWRect bounds;
 	cBoundsSource_get(&bounds);
 
@@ -101,7 +111,7 @@ ePaintEvent_paint(CELLIDX idx)
 	TWSetRect(&r, 2, 2, w - 4, h - 4);
 	cDrawingContext_fillRect(TWMakeColor(192, 192, 192), &r);
 
-	if (cViewControl_isFocused()) {
+	if (cKeyboardInputManager_isEventReceiver(cKeyboardEvent_refer_to_descriptor())) {
 		TWColor color = TWMakeColor(0, 0, 0);
 		r.w = 1; r.h = 1;
 		for (int x = 4; x < w - 4; x += 2) {
@@ -139,7 +149,7 @@ eMouseEvent_mouseDown(CELLIDX idx, TWPoint point, uint8_t button)
 		return;
 	}
 
-	cViewControl_setFocus();
+	cKeyboardInputManager_setEventReceiver(cKeyboardEvent_refer_to_descriptor());
 	cViewControl_setMouseCapture();
 	cViewControl_setNeedsUpdate();
 }
@@ -221,31 +231,25 @@ eKeyboardEvent_keyUp(CELLIDX idx, uint16_t keyCode)
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 }
 
-/* #[<ENTRY_PORT>]# eFocusEvent
- * entry port: eFocusEvent
- * signature:  sTWFocusEvent
- * context:    task
- * #[</ENTRY_PORT>]# */
-
-/* #[<ENTRY_FUNC>]# eFocusEvent_enter
- * name:         eFocusEvent_enter
- * global_name:  tSimpleButtonCore_eFocusEvent_enter
+/* #[<ENTRY_FUNC>]# eKeyboardEvent_enter
+ * name:         eKeyboardEvent_enter
+ * global_name:  tSimpleButtonCore_eKeyboardEvent_enter
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eFocusEvent_enter(CELLIDX idx)
+eKeyboardEvent_enter(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	cViewControl_setNeedsUpdate();
 }
 
-/* #[<ENTRY_FUNC>]# eFocusEvent_leave
- * name:         eFocusEvent_leave
- * global_name:  tSimpleButtonCore_eFocusEvent_leave
+/* #[<ENTRY_FUNC>]# eKeyboardEvent_leave
+ * name:         eKeyboardEvent_leave
+ * global_name:  tSimpleButtonCore_eKeyboardEvent_leave
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eFocusEvent_leave(CELLIDX idx)
+eKeyboardEvent_leave(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	cViewControl_setNeedsUpdate();
