@@ -10,7 +10,7 @@ import("sTWGraphicsDeviceOutput.cdl");
 import("tTWRGBX32BitmapGraphicsRenderer.cdl");
 import("sTWSDLGraphicsDeviceControl.cdl");
 import("sTWSDLEvent.cdl");
-import("sTWKeyboardInputManagerControl.cdl");
+import("sTWKeyboardInputDriverEvent.cdl");
 
 /** @internal */
 celltype tTWSDLGraphicsDeviceCore
@@ -20,7 +20,7 @@ celltype tTWSDLGraphicsDeviceCore
 	entry sTWGraphicsDeviceOutput eOutput;
 	call sTWGraphicsDeviceOutput cOutput;
 
-	call sTWKeyboardInputManagerControl cKeyboardInputManager;
+	call sTWKeyboardInputDriverEvent cKeyboardInputDriverEvent;
 
 	entry sTWSDLGraphicsDeviceControl eControl;
 
@@ -47,7 +47,7 @@ celltype tTWSDLGraphicsDeviceCore
  */
 composite tTWSDLGraphicsDevice
 {
-	call sTWKeyboardInputManagerControl cKeyboardInputManager;
+	call sTWKeyboardInputDriverEvent cKeyboardInputDriverEvent;
 	entry sTWGraphicsDeviceOutput eGraphicsDevice;
 
 	entry sTWSDLGraphicsDeviceControl eControl;
@@ -65,7 +65,7 @@ composite tTWSDLGraphicsDevice
 	cell tTWRGBX32BitmapGraphicsRenderer Renderer;
 
 	cell tTWSDLGraphicsDeviceCore Core {
-		cKeyboardInputManager => composite.cKeyboardInputManager;
+		cKeyboardInputDriverEvent => composite.cKeyboardInputDriverEvent;
 		width = composite.width;
 		height = composite.height;
 		title = composite.title;

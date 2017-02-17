@@ -11,20 +11,30 @@ import("sAction.cdl");
 celltype tSimpleButtonCore {
 	entry sTWPaintEvent ePaintEvent;
 	entry sTWMouseEvent eMouseEvent;
-	entry sTWKeyboardEvent eKeyboardEvent;
 	entry sTWFocusEvent eFocusEvent;
+
+	// TODO: 本当は optional でいいけど、そうすると composite の非 optional な
+	//       call に接続できなくなってしまう! (tecsgen v1.4.0)
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 
 	call sTWRectSource cBoundsSource;
 	call sTWDrawingContext cDrawingContext;
 	call sTWViewControl cViewControl;
 
 	[optional] call sAction cAction;
+
+	/** 自身の cKeyboardEvent と結合して下さい。 */
+	entry sTWKeyboardEvent eKeyboardEvent;
+	/** 自身の eKeyboardEvent と結合して下さい。 */
+	[ref_desc] call sTWKeyboardEvent cKeyboardEvent;
 };
 
 composite tSimpleButton {
 	[optional] call sTWSuperviewLink cSuperview;
 	entry sTWSubviewLink eSuperview;
 	call sTWDesktopLink cDesktopLink;
+
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 
 	call sTWViewStyleSource cStyleSource;
 	entry sTWValueSourceCallback eStyleSource;
@@ -40,8 +50,10 @@ composite tSimpleButton {
 	cell tSimpleButtonCore Core {
 		cBoundsSource => composite.cBoundsSource;
 		cAction => composite.cAction;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
 		cDrawingContext = View.eDrawingContext;
 		cViewControl = View.eControl;
+		cKeyboardEvent = Core.eKeyboardEvent;
 	};
 
 	cell tTWView View {
@@ -53,7 +65,6 @@ composite tSimpleButton {
 
 		cPaintEvent = Core.ePaintEvent;
 		cMouseEvent = Core.eMouseEvent;
-		cKeyboardEvent = Core.eKeyboardEvent;
 		cFocusEvent = Core.eFocusEvent;
 	};
 

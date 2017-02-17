@@ -14,16 +14,30 @@ import("TWTecs.cdl");
 
 import("tSimpleButton.cdl");
 
+cell tTWSDLDispatcher Dispatcher {
+};
+
+cell tTWTimerManager TimerManager {
+	cDispatcherLink = Dispatcher.eDispatcherLink;
+	eTimerManager <= Dispatcher.cTimerManager;
+};
+
+cell tTWKeyboardInputManager KeyboardInputManager {
+};
+
 cell tTWSDLGraphicsDevice SDL {
 	width = 120;
 	height = 120;
 	title = "Hello World!";
 	windowFlags = C_EXP("0");
+
+	eSDLEvent <= Dispatcher.cSDLEvent[0];
+
+	cKeyboardInputDriverEvent = KeyboardInputManager.eDriverEvent;
 };
 
 cell tTWDesktop Desktop {
 	cGraphicsDevice = SDL.eGraphicsDevice;
-	eGraphicsDevice <= SDL.cGraphicsDevice;
 };
 
 celltype tMainWindowCore {
@@ -37,6 +51,8 @@ composite tMainWindow {
 	[optional] call sTWSuperviewLink cSuperview;
 	entry sTWSubviewLink eSuperview;
 	call sTWDesktopLink cDesktopLink;
+
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 
 	cell tSimpleButton Button1;
 	cell tSimpleButton Button2;
@@ -85,8 +101,8 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button1 {
 		cSuperview = View.eSubview[0];
-
 		cDesktopLink => composite.cDesktopLink;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
 
 		cBoundsSource = Button1_Bounds.eSource;
 		cStyleSource = Button_Style.eSource;
@@ -95,8 +111,8 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button2 {
 		cSuperview = View.eSubview[1];
-
 		cDesktopLink => composite.cDesktopLink;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
 
 		cBoundsSource = Button2_Bounds.eSource;
 		cStyleSource = Button_Style.eSource;
@@ -105,8 +121,8 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button3 {
 		cSuperview = View.eSubview[2];
-
 		cDesktopLink => composite.cDesktopLink;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
 
 		cBoundsSource = Button3_Bounds.eSource;
 		cStyleSource = Button_Style.eSource;
@@ -119,19 +135,18 @@ cell tMainWindow MainWindow {
 	cSuperview = Desktop.eSubview;
 	eSuperview <= Desktop.cSubview;
 	cDesktopLink = Desktop.eDesktopLink;
+	cKeyboardInputManager = KeyboardInputManager.eControl;
 };
 
 [active, singleton]
 celltype tTestApp {
 	call sTWSDLGraphicsDeviceControl cSDL;
-	entry sTWSDLGraphicsDeviceEvent eSDL;
 
 	call sTWDesktopControl cDesktop;
 };
 
 cell tTestApp App {
 	cSDL = SDL.eControl;
-	eSDL <= SDL.cEvent;
 
 	cDesktop = Desktop.eDesktop;
 };

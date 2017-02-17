@@ -45,7 +45,7 @@ typedef struct tagTWPQNode {
 
 #define TWPQGetTopNode(headerPtr) ((headerPtr)->root)
 
-typedef int (*TWPQComparer)(TWPQNode *, TWPQNode *, intptr_t);
+typedef int (*TWPQComparer)(TWPQNode *a, TWPQNode *b, intptr_t param);
 
 void TWPQInsertNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, intptr_t param);
 void TWPQRemoveNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, intptr_t param);

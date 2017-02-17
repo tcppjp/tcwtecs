@@ -9,5 +9,5 @@ signature sTWDispatchTarget {
     /**
      * `sTWDispatcherControl::invoke` や、遅延ディスパッチ、タイマにより、メインスレッドで呼び出される関数。
      */
-    void main(intptr_t param);
+    void main([in] intptr_t param);
 };

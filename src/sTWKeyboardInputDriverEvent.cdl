@@ -7,8 +7,8 @@
 
 import("sTWKeyboardEvent.cdl");
 
-signature sTWKeyboardInputManagerControl
+signature sTWKeyboardInputDriverEvent
 {
-    void setEventReceiver([in] Descriptor(sTWKeyboardEvent) receiver);
-    void clearEventReceiver(void);
+    void notifyKeyDown([in] uint16_t keyCode);
+    void notifyKeyUp([in] uint16_t keyCode);
 };

@@ -6,11 +6,13 @@
  */
 
 import("sTWKeyboardInputManagerControl.cdl");
+import("sTWKeyboardInputDriverEvent.cdl");
 import("sTWKeyboardEvent.cdl");
 
 celltype tTWKeyboardInputManager
 {
     entry sTWKeyboardInputManagerControl eControl;
+    entry sTWKeyboardInputDriverEvent eDriverEvent;
 
     /** Used internally; do not make any attempt to join this to anything */
     [dynamic, optional, ref_desc] call sTWKeyboardEvent cReceiver;

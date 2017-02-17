@@ -5,12 +5,12 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-import_C(<SDL2/SDL.h>);
+import_C("TWSDL2.h");
 
 /**
  * SDLイベントシステムにおけるイベントの伝達に用いられるシグニチャ。
  */
-[callback]
+[deviate, callback]
 signature sTWSDLEvent
 {
     /**
@@ -18,5 +18,5 @@ signature sTWSDLEvent
      *
      * @return 処理できた場合は 0 以外を返す。処理できなかった場合は 0 を返す。
      */
-    uint8_t handle([in] SDL_Event *event);
+    uint8_t handle([inout] SDL_Event *event);
 };

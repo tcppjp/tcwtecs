@@ -17,20 +17,20 @@ signature sTWTimerManagerLink {
      *
      * Prerequisite: `!(timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending))`
      */
-    void registerTimer([in] TWTimerDescriptor *timer);
+    void registerTimer([inout] TWTimerDescriptor *timer);
 
     /**
      * Called by a timer.
      *
      * Prerequisite: `timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending)`
      */
-    void unregisterTimer([in] TWTimerDescriptor *timer);
+    void unregisterTimer([inout] TWTimerDescriptor *timer);
 
     /** Called by a deferred dispatch */
-    uint8_t registerDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param);
+    uint8_t registerDeferredDispatch([inout] TWDeferredDispatchDescriptor *dd, [in] intptr_t param);
 
     /** Called by a deferred dispatch */
-    uint8_t unregisterDeferredDispatch(TWDeferredDispatchDescriptor *dd);
+    uint8_t unregisterDeferredDispatch([inout] TWDeferredDispatchDescriptor *dd);
 
     /** Called by a dispatcher */
     void handleTimeout(void);

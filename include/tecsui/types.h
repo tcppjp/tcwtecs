@@ -15,6 +15,8 @@ typedef short int16_t;
 typedef long int32_t;
 typedef uint8_t bool;
 typedef uint32_t size_t;
+typedef size_t intptr_t;
+typedef size_t uintptr_t;
 #else
 #include <stdint.h>
 #include <stdbool.h>
