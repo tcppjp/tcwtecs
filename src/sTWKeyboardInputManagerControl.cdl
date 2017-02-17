@@ -11,4 +11,6 @@ signature sTWKeyboardInputManagerControl
 {
     void setEventReceiver([in] Descriptor(sTWKeyboardEvent) receiver);
     void clearEventReceiver(void);
+
+    uint8_t isEventReceiver([in] Descriptor(sTWKeyboardEvent) receiver);
 };

@@ -9,7 +9,7 @@
 void
 eControl_setEventReceiver(Descriptor(sTWKeyboardEvent) receiver)
 {
-    if (cReceiver_refer_to_descriptor() == receiver) {
+    if (is_cReceiver_joined() && cReceiver_refer_to_descriptor() == receiver) {
         return;
     }
     if (is_cReceiver_joined()) {
@@ -26,6 +26,12 @@ eControl_clearEventReceiver(void)
         cReceiver_leave();
     }
     cReceiver_set_unjoin();
+}
+
+uint8_t
+eConrol_isEventReceiver(Descriptor(sTWKeyboardEvent) receiver)
+{
+    return is_cReceiver_joined() && cReceiver_refer_to_descriptor() == receiver;
 }
 
 void
