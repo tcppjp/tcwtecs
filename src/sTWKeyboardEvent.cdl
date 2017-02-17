@@ -5,6 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
+// TODO: keyboard event propagation (through the view hierarchy)
 signature sTWKeyboardEvent
 {
     /**

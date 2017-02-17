@@ -14,8 +14,6 @@ signature sTWDesktopLink
 	// focus management
 	void *getMouseCaptureTarget(void);
 	void setMouseCaptureTarget([inout] void *newTarget);
-	void *getKeyboardFocusTarget(void);
-	void setKeyboardFocusTarget([inout] void *newTarget);
 
 	// proxy of sTWDrawingContext
 	void fillRect([in] TWColor color, [in] const TWRect *rect);

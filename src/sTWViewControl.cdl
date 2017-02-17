@@ -16,9 +16,6 @@ signature sTWViewControl
 
 	void setNeedsUpdate(void);
 
-	void setFocus(void);
-	bool isFocused(void);
-
 	void setMouseCapture(void);
 	void releaseMouseCapture(void);
 	bool hasMouseCapture(void);

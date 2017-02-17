@@ -19,16 +19,11 @@
  *   bool           cSubview_mouseDown( subscript, TWPoint point, uint8_t button );
  *   bool           cSubview_mouseMove( subscript, TWPoint point );
  *   bool           cSubview_mouseUp( subscript, TWPoint point, uint8_t button );
- *   void           cSubview_keyDown( subscript, uint16_t keyCode );
- *   void           cSubview_keyUp( subscript, uint16_t keyCode );
  *   void           cSubview_paint( subscript, const TWRect* clipRect, const TWRect* globalBounds );
- *   int            cSubview_keyboardFocusTargetChanged( subscript, void* newTarget, void* oldTarget );
  *       subscript:  0...(NCP_cSubview-1)
  * call port: cDesktopLink signature: sTWDesktopLink context:task
  *   void*          cDesktopLink_getMouseCaptureTarget( );
  *   void           cDesktopLink_setMouseCaptureTarget( void* newTarget );
- *   void*          cDesktopLink_getKeyboardFocusTarget( );
- *   void           cDesktopLink_setKeyboardFocusTarget( void* newTarget );
  *   void           cDesktopLink_fillRect( TWColor color, const TWRect* rect );
  *   void           cDesktopLink_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cDesktopLink_preparePaint( const TWRect* globalClipRect, const TWPoint* globalLoc );
@@ -37,14 +32,6 @@
  *   void           cMouseEvent_mouseDown( TWPoint point, uint8_t button );
  *   void           cMouseEvent_mouseMove( TWPoint point );
  *   void           cMouseEvent_mouseUp( TWPoint point, uint8_t button );
- * call port: cKeyboardEvent signature: sTWKeyboardEvent context:task optional:true
- *   bool_t     is_cKeyboardEvent_joined()                     check if joined
- *   void           cKeyboardEvent_keyDown( uint16_t keyCode );
- *   void           cKeyboardEvent_keyUp( uint16_t keyCode );
- * call port: cFocusEvent signature: sTWFocusEvent context:task optional:true
- *   bool_t     is_cFocusEvent_joined()                     check if joined
- *   void           cFocusEvent_enter( );
- *   void           cFocusEvent_leave( );
  * call port: cPaintEvent signature: sTWPaintEvent context:task optional:true
  *   bool_t     is_cPaintEvent_joined()                     check if joined
  *   void           cPaintEvent_paint( );
@@ -226,48 +213,6 @@ eSuperview_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
 	}
 }
 
-/* #[<ENTRY_FUNC>]# eSuperview_keyDown
- * name:         eSuperview_keyDown
- * global_name:  tTWView_eSuperview_keyDown
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eSuperview_keyDown(CELLIDX idx, uint16_t keyCode)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	void *idt = GetIdentifier(p_cellcb);
-	if (idt == cDesktopLink_getKeyboardFocusTarget()) {
-		if (is_cKeyboardEvent_joined()) {
-			cKeyboardEvent_keyDown(keyCode);
-		}
-	} else {
-		for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-			cSubview_keyDown(i, keyCode);
-		}
-	}
-}
-
-/* #[<ENTRY_FUNC>]# eSuperview_keyUp
- * name:         eSuperview_keyUp
- * global_name:  tTWView_eSuperview_keyUp
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eSuperview_keyUp(CELLIDX idx, uint16_t keyCode)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	void *idt = GetIdentifier(p_cellcb);
-	if (idt == cDesktopLink_getKeyboardFocusTarget()) {
-		if (is_cKeyboardEvent_joined()) {
-			cKeyboardEvent_keyUp(keyCode);
-		}
-	} else {
-		for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-			cSubview_keyUp(i, keyCode);
-		}
-	}
-}
-
 /* #[<ENTRY_FUNC>]# eSuperview_paint
  * name:         eSuperview_paint
  * global_name:  tTWView_eSuperview_paint
@@ -305,43 +250,6 @@ eSuperview_paint(CELLIDX idx, const TWRect* clipRect, const TWRect* globalBounds
 	for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
 		cSubview_paint(i, &new_clip, &self_glob);
 	}
-}
-
-/* #[<ENTRY_FUNC>]# eSuperview_keyboardFocusTargetChanged
- * name:         eSuperview_keyboardFocusTargetChanged
- * global_name:  tTWView_eSuperview_keyboardFocusTargetChanged
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-int
-eSuperview_keyboardFocusTargetChanged(CELLIDX idx, void* newTarget, void* oldTarget)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	assert(newTarget != oldTarget);
-
-	int result = 0;
-	void *me = GetIdentifier(p_cellcb);
-	if (newTarget == me) {
-		result = 1;
-	} else if (oldTarget == me) {
-		result = -1;
-	}
-
-	for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-		result += cSubview_keyboardFocusTargetChanged(i, newTarget, oldTarget);
-	}
-
-	assert(result >= -1 && result <= 1);
-
-	if (is_cFocusEvent_joined()) {
-		if (result > 0) {
-			cFocusEvent_enter();
-		} else if (result < 0) {
-			cFocusEvent_leave();
-		}
-	}
-
-	return result;
 }
 
 /* #[<ENTRY_PORT>]# eSubview
@@ -466,33 +374,6 @@ eControl_setNeedsUpdate(CELLIDX idx)
 	TWRect bounds;
 	GetViewBounds(p_cellcb, &bounds);
 	cSuperview_setNeedsUpdate(&bounds);
-}
-
-/* #[<ENTRY_FUNC>]# eControl_setFocus
- * name:         eControl_setFocus
- * global_name:  tTWView_eControl_setFocus
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eControl_setFocus(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	// TODO: prevent invisible view from getting a focus?
-
-	cDesktopLink_setKeyboardFocusTarget(GetIdentifier(p_cellcb));
-}
-
-/* #[<ENTRY_FUNC>]# eControl_isFocused
- * name:         eControl_isFocused
- * global_name:  tTWView_eControl_isFocused
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-bool
-eControl_isFocused(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return cDesktopLink_getKeyboardFocusTarget() == GetIdentifier(p_cellcb);
 }
 
 /* #[<ENTRY_FUNC>]# eControl_setMouseCapture
