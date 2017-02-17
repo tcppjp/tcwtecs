@@ -5,7 +5,7 @@
  * of the MIT license.  See the LICENSE file for details.
  */
 
-/** 
+/**
  * TCWTecs infrastructure. Do not call any members in the user application.
  */
 [deviate]
@@ -18,7 +18,7 @@ signature sTWDesktopLink
 	// proxy of sTWDrawingContext
 	void fillRect([in] TWColor color, [in] const TWRect *rect);
 	void drawBitmap(
-		[in, size_is(numBytes)] const char *data, 
+		[in, size_is(numBytes)] const char *data,
 		[in] TWPixelFormat format,
 		[in] const TWSize *bitmapSize,
 		[in] uint32_t numBytes,
