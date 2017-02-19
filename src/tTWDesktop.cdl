@@ -41,8 +41,6 @@ celltype tTWDesktop
 	call sTWGraphicsDeviceOutput cGraphicsDevice;
 
 	var {
-		void *mouseCaptureTarget = 0;
-		void *keyboardFocusTarget = 0;
 		TWRect dirtyRect;
 		TWPoint paintOffset;
 	};

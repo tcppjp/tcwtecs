@@ -22,23 +22,18 @@
  * These comment are used by tecsmerege when merging.
  *
  * attr access macro #_CAAM_#
- * mouseCaptureTarget void*            VAR_mouseCaptureTarget
- * keyboardFocusTarget void*            VAR_keyboardFocusTarget
- * dirtyRect        TWRect           VAR_dirtyRect
- * paintOffset      TWPoint          VAR_paintOffset
+ * dirtyRect        TWRect           VAR_dirtyRect   
+ * paintOffset      TWPoint          VAR_paintOffset 
  *
  * call port function #_TCPF_#
  * call port: cSubview signature: sTWSubviewLink context:task optional:true
  *   bool_t     is_cSubview_joined()                     check if joined
- *   bool           cSubview_mouseDown( TWPoint point, uint8_t button );
- *   bool           cSubview_mouseMove( TWPoint point );
- *   bool           cSubview_mouseUp( TWPoint point, uint8_t button );
- *   void           cSubview_keyDown( uint16_t keyCode );
- *   void           cSubview_keyUp( uint16_t keyCode );
  *   void           cSubview_paint( const TWRect* clipRect, const TWRect* globalBounds );
- *   int            cSubview_keyboardFocusTargetChanged( void* newTarget, void* oldTarget );
+ *   void           cSubview_subtractClippingRect( const TWRect* clipRect, const TWRect* globalBounds, uint8_t mode );
  * call port: cGraphicsDevice signature: sTWGraphicsDeviceOutput context:task
  *   void           cGraphicsDevice_getScreenSize( TWSize* outSize );
+ *   void           cGraphicsDevice_setClippingRect( const TWRect* rect );
+ *   void           cGraphicsDevice_subtractClippingRect( const TWRect* rect );
  *   void           cGraphicsDevice_setScissorRect( const TWRect* rect );
  *   void           cGraphicsDevice_fillRect( TWColor color, const TWRect* rect );
  *   void           cGraphicsDevice_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
@@ -170,60 +165,6 @@ eSubview_getGlobalLocation(CELLIDX idx, TWPoint* outLoc)
  * context:    task
  * #[</ENTRY_PORT>]# */
 
-/* #[<ENTRY_FUNC>]# eDesktopLink_getMouseCaptureTarget
- * name:         eDesktopLink_getMouseCaptureTarget
- * global_name:  tTWDesktop_eDesktopLink_getMouseCaptureTarget
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void*
-eDesktopLink_getMouseCaptureTarget(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return VAR_mouseCaptureTarget;
-}
-
-/* #[<ENTRY_FUNC>]# eDesktopLink_setMouseCaptureTarget
- * name:         eDesktopLink_setMouseCaptureTarget
- * global_name:  tTWDesktop_eDesktopLink_setMouseCaptureTarget
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eDesktopLink_setMouseCaptureTarget(CELLIDX idx, void* newTarget)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	VAR_mouseCaptureTarget = newTarget;
-}
-
-/* #[<ENTRY_FUNC>]# eDesktopLink_getKeyboardFocusTarget
- * name:         eDesktopLink_getKeyboardFocusTarget
- * global_name:  tTWDesktop_eDesktopLink_getKeyboardFocusTarget
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void*
-eDesktopLink_getKeyboardFocusTarget(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return VAR_keyboardFocusTarget;
-}
-
-/* #[<ENTRY_FUNC>]# eDesktopLink_setKeyboardFocusTarget
- * name:         eDesktopLink_setKeyboardFocusTarget
- * global_name:  tTWDesktop_eDesktopLink_setKeyboardFocusTarget
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eDesktopLink_setKeyboardFocusTarget(CELLIDX idx, void* newTarget)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	if (newTarget == VAR_keyboardFocusTarget) {
-		return;
-	}
-	void *oldTarget = VAR_keyboardFocusTarget;
-	VAR_keyboardFocusTarget = newTarget;
-
-	cSubview_keyboardFocusTargetChanged(newTarget, oldTarget);
-}
-
 /* #[<ENTRY_FUNC>]# eDesktopLink_fillRect
  * name:         eDesktopLink_fillRect
  * global_name:  tTWDesktop_eDesktopLink_fillRect
@@ -269,50 +210,6 @@ eDesktopLink_preparePaint(CELLIDX idx, const TWRect* globalClipRect, const TWPoi
 	cGraphicsDevice_setScissorRect(globalClipRect);
 }
 
-/* #[<ENTRY_PORT>]# eGraphicsDevice
- * entry port: eGraphicsDevice
- * signature:  sTWGraphicsDeviceInput
- * context:    task
- * #[</ENTRY_PORT>]# */
-
-/* #[<ENTRY_FUNC>]# eGraphicsDevice_mouseDown
- * name:         eGraphicsDevice_mouseDown
- * global_name:  tTWDesktop_eGraphicsDevice_mouseDown
- * oneway:       true
- * #[</ENTRY_FUNC>]# */
-void
-eGraphicsDevice_mouseDown(CELLIDX idx, TWPoint point, uint8_t button)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	cSubview_mouseDown(point, button);
-}
-
-/* #[<ENTRY_FUNC>]# eGraphicsDevice_mouseMove
- * name:         eGraphicsDevice_mouseMove
- * global_name:  tTWDesktop_eGraphicsDevice_mouseMove
- * oneway:       true
- * #[</ENTRY_FUNC>]# */
-void
-eGraphicsDevice_mouseMove(CELLIDX idx, TWPoint point)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	cSubview_mouseMove(point);
-}
-
-/* #[<ENTRY_FUNC>]# eGraphicsDevice_mouseUp
- * name:         eGraphicsDevice_mouseUp
- * global_name:  tTWDesktop_eGraphicsDevice_mouseUp
- * oneway:       true
- * #[</ENTRY_FUNC>]# */
-void
-eGraphicsDevice_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	cSubview_mouseUp(point, button);
-}
 
 /* #[<ENTRY_FUNC>]# eGraphicsDevice_keyDown
  * name:         eGraphicsDevice_keyDown

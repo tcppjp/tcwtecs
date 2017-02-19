@@ -22,10 +22,5 @@ import("TWTypes.cdl");
 [callback]
 signature sTWGraphicsDeviceInput
 {
-	[oneway] void mouseDown([in] TWPoint point, [in] uint8_t button);
-	[oneway] void mouseMove([in] TWPoint point);
-	[oneway] void mouseUp([in] TWPoint point, [in] uint8_t button);
-	[oneway] void keyDown([in] uint16_t keyCode);
-	[oneway] void keyUp([in] uint16_t keyCode);
 	[oneway] void resize(void);
 };

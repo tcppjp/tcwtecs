@@ -27,8 +27,4 @@ signature sTWViewControl
 	void getGlobalBounds([out] TWRect *outRect);
 
 	void setNeedsUpdate(void);
-
-	void setMouseCapture(void);
-	void releaseMouseCapture(void);
-	bool hasMouseCapture(void);
 };

@@ -23,10 +23,6 @@
 [deviate]
 signature sTWDesktopLink
 {
-	// focus management
-	void *getMouseCaptureTarget(void);
-	void setMouseCaptureTarget([inout] void *newTarget);
-
 	// proxy of sTWDrawingContext
 	void fillRect([in] TWColor color, [in] const TWRect *rect);
 	void drawBitmap(

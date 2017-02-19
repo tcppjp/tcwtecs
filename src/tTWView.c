@@ -28,14 +28,10 @@
  *   void           cSuperview_getGlobalLocation( TWPoint* outLoc );
  * call port: cSubview signature: sTWSubviewLink context:task optional:true
  *   bool_t     is_cSubview_joined(int subscript)        check if joined
- *   bool           cSubview_mouseDown( subscript, TWPoint point, uint8_t button );
- *   bool           cSubview_mouseMove( subscript, TWPoint point );
- *   bool           cSubview_mouseUp( subscript, TWPoint point, uint8_t button );
  *   void           cSubview_paint( subscript, const TWRect* clipRect, const TWRect* globalBounds );
+ *   void           cSubview_subtractClippingRect( subscript, const TWRect* clipRect, const TWRect* globalBounds, uint8_t mode );
  *       subscript:  0...(NCP_cSubview-1)
  * call port: cDesktopLink signature: sTWDesktopLink context:task
- *   void*          cDesktopLink_getMouseCaptureTarget( );
- *   void           cDesktopLink_setMouseCaptureTarget( void* newTarget );
  *   void           cDesktopLink_fillRect( TWColor color, const TWRect* rect );
  *   void           cDesktopLink_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cDesktopLink_preparePaint( const TWRect* globalClipRect, const TWPoint* globalLoc );
@@ -80,150 +76,6 @@ void *GetIdentifier(CELLCB *p_cellcb) {
  * signature:  sTWSubviewLink
  * context:    task
  * #[</ENTRY_PORT>]# */
-
-/* #[<ENTRY_FUNC>]# eSuperview_mouseDown
- * name:         eSuperview_mouseDown
- * global_name:  tTWView_eSuperview_mouseDown
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-bool
-eSuperview_mouseDown(CELLIDX idx, TWPoint point, uint8_t button)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	void *idt = GetIdentifier(p_cellcb);
-	void *captured = cDesktopLink_getMouseCaptureTarget();
-	TWRect bounds;
-	GetViewBounds(p_cellcb, &bounds);
-	point.x -= bounds.x;
-	point.y -= bounds.y;
-	if (captured != NULL) {
-		if (captured != idt) {
-		  PropagateMessage:
-			// there's a captured view; broadcast the message
-			for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-				if (cSubview_mouseDown(i, point, button)) {
-					return true;
-				}
-			}
-		}
-		if (captured == idt) {
-			// I am the receiver
-			if (is_cMouseEvent_joined()) {
-				cMouseEvent_mouseDown(point, button);
-			}
-			return true;
-		}
-		return false;
-	} else {
-		if ((GetViewStyle(p_cellcb) & TWViewStyleVisible) == 0) {
-			// invisible!
-			return false;
-		}
-		if (point.x >= 0 && point.y >= 0 &&
-			point.x < bounds.w && point.y < bounds.h) {
-			idt = NULL; // this will cause the "I am the reciver" part to be evaluated
-			goto PropagateMessage;
-		} else {
-			return false;
-		}
-	}
-}
-
-/* #[<ENTRY_FUNC>]# eSuperview_mouseMove
- * name:         eSuperview_mouseMove
- * global_name:  tTWView_eSuperview_mouseMove
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-bool
-eSuperview_mouseMove(CELLIDX idx, TWPoint point)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	void *idt = GetIdentifier(p_cellcb);
-	void *captured = cDesktopLink_getMouseCaptureTarget();
-	TWRect bounds;
-	GetViewBounds(p_cellcb, &bounds);
-	point.x -= bounds.x;
-	point.y -= bounds.y;
-	if (captured != NULL) {
-		if (captured != idt) {
-		  PropagateMessage:
-			// there's a captured view; broadcast the message
-			for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-				if (cSubview_mouseMove(i, point)) {
-					return true;
-				}
-			}
-		}
-		if (captured == idt) {
-			// I am the receiver
-			if (is_cMouseEvent_joined()) {
-				cMouseEvent_mouseMove(point);
-			}
-			return true;
-		}
-		return false;
-	} else {
-		if ((GetViewStyle(p_cellcb) & TWViewStyleVisible) == 0) {
-			// invisible!
-			return false;
-		}
-		if (point.x >= 0 && point.y >= 0 &&
-			point.x < bounds.w && point.y < bounds.h) {
-			idt = NULL; // this will cause the "I am the reciver" part to be evaluated
-			goto PropagateMessage;
-		} else {
-			return false;
-		}
-	}
-}
-
-/* #[<ENTRY_FUNC>]# eSuperview_mouseUp
- * name:         eSuperview_mouseUp
- * global_name:  tTWView_eSuperview_mouseUp
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-bool
-eSuperview_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	void *idt = GetIdentifier(p_cellcb);
-	void *captured = cDesktopLink_getMouseCaptureTarget();
-	TWRect bounds;
-	GetViewBounds(p_cellcb, &bounds);
-	point.x -= bounds.x;
-	point.y -= bounds.y;
-	if (captured != NULL) {
-		if (captured != idt) {
-		  PropagateMessage:
-			// there's a captured view; broadcast the message
-			for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-				if (cSubview_mouseUp(i, point, button)) {
-					return true;
-				}
-			}
-		}
-		if (captured == idt) {
-			// I am the receiver
-			if (is_cMouseEvent_joined()) {
-				cMouseEvent_mouseUp(point, button);
-			}
-			return true;
-		}
-		return false;
-	} else {
-		if ((GetViewStyle(p_cellcb) & TWViewStyleVisible) == 0) {
-			// invisible!
-			return false;
-		}
-		if (point.x >= 0 && point.y >= 0 &&
-			point.x < bounds.w && point.y < bounds.h) {
-			idt = NULL; // this will cause the "I am the reciver" part to be evaluated
-			goto PropagateMessage;
-		} else {
-			return false;
-		}
-	}
-}
 
 /* #[<ENTRY_FUNC>]# eSuperview_paint
  * name:         eSuperview_paint
@@ -386,52 +238,6 @@ eControl_setNeedsUpdate(CELLIDX idx)
 	TWRect bounds;
 	GetViewBounds(p_cellcb, &bounds);
 	cSuperview_setNeedsUpdate(&bounds);
-}
-
-/* #[<ENTRY_FUNC>]# eControl_setMouseCapture
- * name:         eControl_setMouseCapture
- * global_name:  tTWView_eControl_setMouseCapture
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eControl_setMouseCapture(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	if (cDesktopLink_getMouseCaptureTarget() != NULL) {
-		return;
-	}
-
-	cDesktopLink_setMouseCaptureTarget(GetIdentifier(p_cellcb));
-}
-
-/* #[<ENTRY_FUNC>]# eControl_releaseMouseCapture
- * name:         eControl_releaseMouseCapture
- * global_name:  tTWView_eControl_releaseMouseCapture
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eControl_releaseMouseCapture(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	if (cDesktopLink_getMouseCaptureTarget() != GetIdentifier(p_cellcb)) {
-		return;
-	}
-
-	cDesktopLink_setMouseCaptureTarget(NULL);
-}
-
-/* #[<ENTRY_FUNC>]# eControl_hasMouseCapture
- * name:         eControl_hasMouseCapture
- * global_name:  tTWView_eControl_hasMouseCapture
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-bool
-eControl_hasMouseCapture(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	return cDesktopLink_getMouseCaptureTarget() == GetIdentifier(p_cellcb);
 }
 
 /* #[<ENTRY_PORT>]# eDrawingContext

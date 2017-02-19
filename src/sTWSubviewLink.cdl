@@ -25,10 +25,6 @@ import("TWTypes.cdl");
 [callback]
 signature sTWSubviewLink
 {
-	bool mouseDown([in] TWPoint point, [in] uint8_t button);
-	bool mouseMove([in] TWPoint point);
-	bool mouseUp([in] TWPoint point, [in] uint8_t button);
-
 	/**
 	 * @param clipRect Region to be updated (in global coordinate)
 	 * @param globalBounds Bounding rect of the caller (in global coordinate)
