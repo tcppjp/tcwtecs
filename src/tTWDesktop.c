@@ -210,32 +210,24 @@ eDesktopLink_preparePaint(CELLIDX idx, const TWRect* globalClipRect, const TWPoi
 	cGraphicsDevice_setScissorRect(globalClipRect);
 }
 
-
-/* #[<ENTRY_FUNC>]# eGraphicsDevice_keyDown
- * name:         eGraphicsDevice_keyDown
- * global_name:  tTWDesktop_eGraphicsDevice_keyDown
- * oneway:       true
+/* #[<ENTRY_FUNC>]# eDesktopLink_subtractClippingRect
+ * name:         eDesktopLink_subtractClippingRect
+ * global_name:  tTWDesktop_eDesktopLink_subtractClippingRect
+ * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eGraphicsDevice_keyDown(CELLIDX idx, uint16_t keyCode)
+eDesktopLink_subtractClippingRect(CELLIDX idx, const TWRect* globalClipRect)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
-	cSubview_keyDown(keyCode);
+	cGraphicsDevice_subtractClippingRect(globalClipRect);
 }
 
-/* #[<ENTRY_FUNC>]# eGraphicsDevice_keyUp
- * name:         eGraphicsDevice_keyUp
- * global_name:  tTWDesktop_eGraphicsDevice_keyUp
- * oneway:       true
- * #[</ENTRY_FUNC>]# */
-void
-eGraphicsDevice_keyUp(CELLIDX idx, uint16_t keyCode)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	cSubview_keyUp(keyCode);
-}
+/* #[<ENTRY_PORT>]# eGraphicsDevice
+ * entry port: eGraphicsDevice
+ * signature:  sTWGraphicsDeviceInput
+ * context:    task
+ * #[</ENTRY_PORT>]# */
 
 /* #[<ENTRY_FUNC>]# eGraphicsDevice_resize
  * name:         eGraphicsDevice_resize

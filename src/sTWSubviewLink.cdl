@@ -30,4 +30,10 @@ signature sTWSubviewLink
 	 * @param globalBounds Bounding rect of the caller (in global coordinate)
 	 */
 	void paint([in] const TWRect *clipRect, [in] const TWRect *globalBounds);
+
+    /**
+     * @param clipRect Region to be updated (in global coordinate)
+     * @param mode 0: no TWViewStyleClipSiblings only, 1: TWViewStyleClipSiblings only
+     */
+    void subtractClippingRect([in] const TWRect *clipRect, [in] const TWRect *globalBounds, [in] uint8_t mode);
 };

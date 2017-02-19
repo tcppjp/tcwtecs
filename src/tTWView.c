@@ -35,6 +35,7 @@
  *   void           cDesktopLink_fillRect( TWColor color, const TWRect* rect );
  *   void           cDesktopLink_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cDesktopLink_preparePaint( const TWRect* globalClipRect, const TWPoint* globalLoc );
+ *   void           cDesktopLink_subtractClippingRect( const TWRect* globalClipRect );
  * call port: cMouseEvent signature: sTWMouseEvent context:task optional:true
  *   bool_t     is_cMouseEvent_joined()                     check if joined
  *   void           cMouseEvent_mouseDown( TWPoint point, uint8_t button );
@@ -103,16 +104,50 @@ eSuperview_paint(CELLIDX idx, const TWRect* clipRect, const TWRect* globalBounds
 		return;
 	}
 
+	// paint subviews
+	for (int_t i = NCP_cSubview - 1; i >= 0; --i) {
+		cSubview_subtractClippingRect(i, &new_clip, &self_glob, 1);
+		cSubview_paint(i, &new_clip, &self_glob);
+	}
+
+	// clip children
+	if ((GetViewStyle(p_cellcb) & TWViewStyleNoClipChildren) == 0) {
+		for (int_t i = NCP_cSubview - 1; i >= 0; --i) {
+			cSubview_subtractClippingRect(i, &new_clip, &self_glob, 0);
+		}
+	}
+
 	// paint myself
 	if (is_cPaintEvent_joined()) {
 		TWPoint self_glob_loc = {self_glob.x, self_glob.y};
 		cDesktopLink_preparePaint(&new_clip, &self_glob_loc);
 		cPaintEvent_paint();
 	}
+}
 
-	// paint subviews
-	for (int_t i = 0, count = NCP_cSubview; i < count; ++i) {
-		cSubview_paint(i, &new_clip, &self_glob);
+/* #[<ENTRY_FUNC>]# eSuperview_subtractClippingRect
+ * name:         eSuperview_subtractClippingRect
+ * global_name:  tTWView_eSuperview_subtractClippingRect
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+void
+eSuperview_subtractClippingRect(CELLIDX idx, const TWRect* clipRect, const TWRect* globalBounds, uint8_t mode)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+
+	if (((GetViewStyle(p_cellcb) & TWViewStyleClipSiblings) != 0) == mode) {
+		TWRect self_glob;
+		GetViewBounds(p_cellcb, &self_glob);
+		self_glob.x += globalBounds->x;
+		self_glob.y += globalBounds->y;
+
+		TWRect new_clip;
+		if (!TWRectIntersect(&self_glob, clipRect, &new_clip)) {
+			// culled
+			return;
+		}
+
+		cDesktopLink_subtractClippingRect(&new_clip);
 	}
 }
 

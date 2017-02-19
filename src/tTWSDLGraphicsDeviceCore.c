@@ -34,6 +34,7 @@
  *   void           cOutput_getScreenSize( TWSize* outSize );
  *   void           cOutput_setClippingRect( const TWRect* rect );
  *   void           cOutput_subtractClippingRect( const TWRect* rect );
+ *   void           cOutput_setScissorRect( const TWRect* rect );
  *   void           cOutput_fillRect( TWColor color, const TWRect* rect );
  *   void           cOutput_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cOutput_update( const TWRect* rect );
@@ -132,6 +133,19 @@ eOutput_subtractClippingRect(CELLIDX idx, const TWRect* rect)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	cOutput_subtractClippingRect(rect);
+}
+
+/* #[<ENTRY_FUNC>]# eOutput_setScissorRect
+ * name:         eOutput_setScissorRect
+ * global_name:  tTWSDLGraphicsDeviceCore_eOutput_setScissorRect
+ * oneway:       true
+ * #[</ENTRY_FUNC>]# */
+void
+eOutput_setScissorRect(CELLIDX idx, const TWRect* rect)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+	cOutput_setScissorRect(rect);
+
 }
 
 /* #[<ENTRY_FUNC>]# eOutput_fillRect

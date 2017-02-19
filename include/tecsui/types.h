@@ -38,7 +38,9 @@ typedef signed int int_t;
 
 typedef uint8_t TWViewStyle;
 
-#define TWViewStyleVisible			((TWViewStyle)(1 << 0))
+#define TWViewStyleVisible          ((TWViewStyle)(1 << 0))
+#define TWViewStyleClipSiblings     ((TWViewStyle)(1 << 1))
+#define TWViewStyleNoClipChildren   ((TWViewStyle)(1 << 2))
 
 typedef int32_t TWDuration;
 typedef uint32_t TWTimePoint;

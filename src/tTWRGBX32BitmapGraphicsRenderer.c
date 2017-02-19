@@ -96,7 +96,6 @@ eGraphicsDeviceOutput_setClippingRect(CELLIDX idx, const TWRect* rect)
 
 	TWScanlineClipperInitialize(&VAR_scanlineClipper, VAR_scanlineClipperNodes, ATTR_numScanlineClipperNodes);
 	TWScanlineClipperSetClippingRect(&VAR_scanlineClipper, rect);
-	VAR_scissor = *rect;
 
 	TWScanlineClipperInitializeLineScanner(&VAR_scanlineClipperLineScanner);
 }
@@ -116,6 +115,19 @@ eGraphicsDeviceOutput_subtractClippingRect(CELLIDX idx, const TWRect* rect)
 	TWScanlineClipperInitializeLineScanner(&VAR_scanlineClipperLineScanner);
 }
 
+/* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_setScissorRect
+ * name:         eGraphicsDeviceOutput_setScissorRect
+ * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_setScissorRect
+ * oneway:       true
+ * #[</ENTRY_FUNC>]# */
+void
+eGraphicsDeviceOutput_setScissorRect(CELLIDX idx, const TWRect* rect)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+
+	VAR_scissor = *rect;
+}
+
 /* #[<ENTRY_FUNC>]# eGraphicsDeviceOutput_fillRect
  * name:         eGraphicsDeviceOutput_fillRect
  * global_name:  tTWRGBX32BitmapGraphicsRenderer_eGraphicsDeviceOutput_fillRect
@@ -130,19 +142,28 @@ eGraphicsDeviceOutput_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
 	cRenderTargetBitmapSource_get((void **)&pixels, NULL, &w, &h);
 
 	int x1 = rect->x, y1 = rect->y;
+	int x2 = x1 + rect->w, y2 = y1 + rect->h;
+	x1 = MAX(x1, VAR_scissor.x);
+	y1 = MAX(y1, VAR_scissor.y);
+	x2 = MIN(x2, VAR_scissor.x + VAR_scissor.w);
+	y2 = MIN(y2, VAR_scissor.y + VAR_scissor.h);
+	if (x2 <= x1 || y2 <= y1) {
+		return;
+	}
+
 	uint32_t pixel = TWColorToRGBX32(color);
 
 	pixels += x1 + y1 * w;
 
 	TWScanlineClipperSpanScanState spanScanner;
-	if (!TWScanlineClipperMoveToLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner, rect->y, rect->h)) {
+	if (!TWScanlineClipperMoveToLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner, y1, y2 - y1)) {
 		return;
 	}
 
 	do {
 		pixels += w * VAR_scanlineClipperLineScanner.skip;
 
-		if (!TWScanlineClipperStartLine(&VAR_scanlineClipper, &spanScanner, rect->x, rect->w,
+		if (!TWScanlineClipperStartLine(&VAR_scanlineClipper, &spanScanner, x1, x2 - x1,
 		  &VAR_scanlineClipperLineScanner)) {
 			goto Continue;
 		}
