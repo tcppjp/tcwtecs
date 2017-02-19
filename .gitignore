@@ -3,6 +3,11 @@
 *.o
 gen
 
+# tecsmerge backup
+*.c_1
+*.c_2
+*.c_3
+
 # executables of example project
 /test/build/*.exe
 /test/build/test
