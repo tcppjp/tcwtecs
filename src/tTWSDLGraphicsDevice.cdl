@@ -53,9 +53,6 @@ celltype tTWSDLGraphicsDeviceCore
 
 /**
  * Example implementation of graphics device for SDL (Simple DirectMedia Library).
- * This is considered rather incomplete because it only covers basic usage;
- * for example, it doesn't support multi-window application where some windows
- * don't belong to tTWSDLGraphicsDevice.
  */
 composite tTWSDLGraphicsDevice
 {

@@ -30,22 +30,16 @@
  * surface          void*            VAR_surface
  *
  * call port function #_TCPF_#
- * call port: cInput signature: sTWGraphicsDeviceInput context:task
- *   void           cInput_mouseDown( TWPoint point, uint8_t button );
- *   void           cInput_mouseMove( TWPoint point );
- *   void           cInput_mouseUp( TWPoint point, uint8_t button );
- *   void           cInput_keyDown( uint16_t keyCode );
- *   void           cInput_keyUp( uint16_t keyCode );
- *   void           cInput_resize( );
  * call port: cOutput signature: sTWGraphicsDeviceOutput context:task
  *   void           cOutput_getScreenSize( TWSize* outSize );
- *   void           cOutput_setScissorRect( const TWRect* rect );
+ *   void           cOutput_setClippingRect( const TWRect* rect );
+ *   void           cOutput_subtractClippingRect( const TWRect* rect );
  *   void           cOutput_fillRect( TWColor color, const TWRect* rect );
  *   void           cOutput_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cOutput_update( const TWRect* rect );
- * call port: cEvent signature: sTWSDLGraphicsDeviceEvent context:task optional:true
- *   bool_t     is_cEvent_joined()                     check if joined
- *   void           cEvent_idle( );
+ * call port: cKeyboardInputDriverEvent signature: sTWKeyboardInputDriverEvent context:task
+ *   void           cKeyboardInputDriverEvent_notifyKeyDown( uint16_t keyCode );
+ *   void           cKeyboardInputDriverEvent_notifyKeyUp( uint16_t keyCode );
  *
  * #[</PREAMBLE>]# */
 
@@ -58,10 +52,6 @@
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
 #endif
-
-// TODO: user induced validation event
-#define TWSE_VALIDATE 	(SDL_USEREVENT + 0x0001)
-#define TWSE_QUIT 		(SDL_USEREVENT + 0x0002)
 
 static inline SDL_Window *GetSDLWindow(CELLCB *p_cellcb) {
 	return (SDL_Window *)VAR_window;
@@ -120,16 +110,28 @@ eOutput_getScreenSize(CELLIDX idx, TWSize* outSize)
 	outSize->h = surf->h;
 }
 
-/* #[<ENTRY_FUNC>]# eOutput_setScissorRect
- * name:         eOutput_setScissorRect
- * global_name:  tTWSDLGraphicsDeviceCore_eOutput_setScissorRect
+/* #[<ENTRY_FUNC>]# eOutput_setClippingRect
+ * name:         eOutput_setClippingRect
+ * global_name:  tTWSDLGraphicsDeviceCore_eOutput_setClippingRect
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
-eOutput_setScissorRect(CELLIDX idx, const TWRect* rect)
+eOutput_setClippingRect(CELLIDX idx, const TWRect* rect)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	cOutput_setScissorRect(rect);
+	cOutput_setClippingRect(rect);
+}
+
+/* #[<ENTRY_FUNC>]# eOutput_subtractClippingRect
+ * name:         eOutput_subtractClippingRect
+ * global_name:  tTWSDLGraphicsDeviceCore_eOutput_subtractClippingRect
+ * oneway:       true
+ * #[</ENTRY_FUNC>]# */
+void
+eOutput_subtractClippingRect(CELLIDX idx, const TWRect* rect)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+	cOutput_subtractClippingRect(rect);
 }
 
 /* #[<ENTRY_FUNC>]# eOutput_fillRect
@@ -204,87 +206,64 @@ eControl_initialize(CELLIDX idx)
 	VAR_surface = (void *)surf;
 }
 
-/* #[<ENTRY_FUNC>]# eControl_enterMainLoop
- * name:         eControl_enterMainLoop
- * global_name:  tTWSDLGraphicsDeviceCore_eControl_enterMainLoop
+/* #[<ENTRY_PORT>]# eSDLEvent
+ * entry port: eSDLEvent
+ * signature:  sTWSDLEvent
+ * context:    task
+ * #[</ENTRY_PORT>]# */
+
+/* #[<ENTRY_FUNC>]# eSDLEvent_handle
+ * name:         eSDLEvent_handle
+ * global_name:  tTWSDLGraphicsDeviceCore_eSDLEvent_handle
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
-void
-eControl_enterMainLoop(CELLIDX idx)
+uint8_t
+eSDLEvent_handle(CELLIDX idx, SDL_Event* event)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
 	SDL_Window *wnd = GetSDLWindow(p_cellcb);
 
-	SDL_Event e;
-	while (SDL_WaitEvent(&e)) {
-		switch (e.type) {
-			case SDL_QUIT:
-				// TODO: custom handling of SDL_QUIT
-				return;
-			case SDL_WINDOWEVENT:
-				if (e.window.windowID != SDL_GetWindowID(wnd)) {
-					break;
-				}
-				switch (e.window.event) {
-					case SDL_WINDOWEVENT_SIZE_CHANGED: {
-						int new_w, new_h;
-						SDL_GetWindowSize(wnd, &new_w, &new_h);
-
-						SDL_FreeSurface(GetSDLSurface(p_cellcb));
-
-						// FIXME: duplicated code
-						SDL_Surface *surf = SDL_CreateRGBSurface(
-							0, new_w, new_h, 32, 0xff, 0xff00, 0xff0000, 0);
-						VAR_surface = (void *)surf;
-
-						cInput_resize();
-						break;
-					}
-				}
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				cInput_mouseDown(TWMakePoint(e.button.x, e.button.y), e.button.button);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				cInput_mouseUp(TWMakePoint(e.button.x, e.button.y), e.button.button);
-				break;
-			case SDL_MOUSEMOTION:
-				cInput_mouseMove(TWMakePoint(e.motion.x, e.motion.y));
-				break;
-			case SDL_KEYDOWN:
-				cInput_keyDown(e.key.keysym.sym);
-				break;
-			case SDL_KEYUP:
-				cInput_keyUp(e.key.keysym.sym);
-				break;
-			case TWSE_VALIDATE:
-				// TODO: user induced validation event
-				break;
-			case TWSE_QUIT:
-				return;
-		}
-
-		if (is_cEvent_joined()) {
-			cEvent_idle();
-		}
+	switch (event->type) {
+		case SDL_WINDOWEVENT:
+			if (event->window.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			// (nothing to handle so far...
+			//  maybe SDL_WINDOWEVENT_SIZE_CHANGED?)
+			return 1;
+		case SDL_MOUSEBUTTONDOWN:
+			if (event->button.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			// TODO: emulate touch event
+			return 1;
+		case SDL_MOUSEBUTTONUP:
+			if (event->button.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			// TODO: emulate touch event
+			return 1;
+		case SDL_MOUSEMOTION:
+			if (event->button.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			return 1;
+		case SDL_KEYDOWN:
+			if (event->key.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			cKeyboardInputDriverEvent_notifyKeyDown(event->key.keysym.sym);
+			return 1;
+		case SDL_KEYUP:
+			if (event->key.windowID != SDL_GetWindowID(wnd)) {
+				return 0;
+			}
+			cKeyboardInputDriverEvent_notifyKeyUp(event->key.keysym.sym);
+			return 1;
 	}
-}
 
-/* #[<ENTRY_FUNC>]# eControl_quit
- * name:         eControl_quit
- * global_name:  tTWSDLGraphicsDeviceCore_eControl_quit
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eControl_quit(CELLIDX idx)
-{
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
-	SDL_Event ev;
-	memset(&ev, 0, sizeof(ev));
-	ev.type = TWSE_QUIT;
-	SDL_PushEvent(&ev);
+	return 0;
 }
 
 /* #[<POSTAMBLE>]#

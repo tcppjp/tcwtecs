@@ -20,6 +20,4 @@
 signature sTWSDLGraphicsDeviceControl
 {
 	void initialize(void);
-	void enterMainLoop(void);
-	void quit(void);
 };
