@@ -15,4 +15,4 @@
 # You should have received a copy of the GNU General Public License
 # along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
 
-TCWTECS_OBJS := TWGeometry.o TWBitmap.o TWPriorityQueue.o TWScanlineClipper.o
+TCWTECS_OBJS := TWGeometry.o TWBitmap.o TWPriorityQueue.o TWScanlineClipper.o TWDoublyLinkedList.o
