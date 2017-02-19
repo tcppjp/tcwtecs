@@ -1,8 +1,20 @@
 /*
- * Copyright (C) 2016 Tomoaki Kawada
+ * Copyright (C) 2017 Tomoaki Kawada
  *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* #[<PREAMBLE>]#
@@ -198,7 +210,7 @@ eSuperview_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
 			return true;
 		}
 		return false;
-	} else {	
+	} else {
 		if ((GetViewStyle(p_cellcb) & TWViewStyleVisible) == 0) {
 			// invisible!
 			return false;
@@ -222,7 +234,7 @@ void
 eSuperview_paint(CELLIDX idx, const TWRect* clipRect, const TWRect* globalBounds)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	
+
 	if ((GetViewStyle(p_cellcb) & TWViewStyleVisible) == 0) {
 		// invisible!
 		return;
@@ -450,7 +462,7 @@ eDrawingContext_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat format, 
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	cDesktopLink_drawBitmap(data, format, bitmapSize, numBytes,
-		inRect, outLoc, monoColor);	
+		inRect, outLoc, monoColor);
 }
 
 /* #[<ENTRY_PORT>]# eStyleSource

@@ -1,8 +1,20 @@
 /*
- * Copyright (C) 2016 Tomoaki Kawada
+ * Copyright (C) 2017 Tomoaki Kawada
  *
- * This software may be modified and distributed under the terms
- * of the MIT license.  See the LICENSE file for details.
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* #[<PREAMBLE>]#
@@ -12,8 +24,8 @@
  * attr access macro #_CAAM_#
  * mouseCaptureTarget void*            VAR_mouseCaptureTarget
  * keyboardFocusTarget void*            VAR_keyboardFocusTarget
- * dirtyRect        TWRect           VAR_dirtyRect   
- * paintOffset      TWPoint          VAR_paintOffset 
+ * dirtyRect        TWRect           VAR_dirtyRect
+ * paintOffset      TWPoint          VAR_paintOffset
  *
  * call port function #_TCPF_#
  * call port: cSubview signature: sTWSubviewLink context:task optional:true
@@ -55,7 +67,7 @@ void
 eDesktop_paint(CELLIDX idx)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	
+
 	TWRect dirty_rect = VAR_dirtyRect;
 	if (dirty_rect.w <= 0 || dirty_rect.h <= 0) {
 		// no region to update
