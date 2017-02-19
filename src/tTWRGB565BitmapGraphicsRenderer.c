@@ -25,6 +25,10 @@
 #include "tecsui/bitmap.h"
 #include "tecsui/geometry.h"
 
+//
+// TODO: OUT DATED!
+//
+
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */

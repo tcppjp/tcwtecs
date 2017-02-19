@@ -14,10 +14,11 @@ import("TWTypes.cdl");
 signature sTWGraphicsDeviceOutput
 {
 	void getScreenSize([out] TWSize *outSize);
-	[oneway] void setScissorRect([in] const TWRect *rect);
+	[oneway] void setClippingRect([in] const TWRect *rect);
+	[oneway] void subtractClippingRect([in] const TWRect *rect);
 	[oneway] void fillRect([in] TWColor color, [in] const TWRect *rect);
 	[oneway] void drawBitmap(
-		[in, size_is(numBytes)] const char *data, 
+		[in, size_is(numBytes)] const char *data,
 		[in] TWPixelFormat format,
 		[in] const TWSize *bitmapSize,
 		[in] uint32_t numBytes,

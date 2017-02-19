@@ -9,12 +9,24 @@ import("TWTypes.cdl");
 import("sTWGraphicsDeviceOutput.cdl");
 import("sTWRenderTargetBitmapSource.cdl");
 
+import_C("TWPrivate.h");
+
 celltype tTWRGBX32BitmapGraphicsRenderer
 {
 	entry sTWGraphicsDeviceOutput eGraphicsDeviceOutput;
 	call sTWRenderTargetBitmapSource cRenderTargetBitmapSource;
 
-	var {
-		TWRect scissor;
-	};
+    attr {
+        uint16_t numScanlineClipperNodes = 256;
+    };
+
+    var {
+        TWRect scissor;
+
+        TWScanlineClipperState scanlineClipper;
+        TWScanlineClipperLineScanState scanlineClipperLineScanner;
+
+        [size_is(numScanlineClipperNodes)]
+        TWScanlineClipperNode *scanlineClipperNodes;
+    };
 };

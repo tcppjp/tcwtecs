@@ -121,3 +121,67 @@ typedef struct tagTWDeferredDispatchDescriptor {
 #define TWDLLNodeToDeferredDispatchDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWDeferredDispatchDescriptor, pendingNode)
 
 extern void TWFireDeferredDispatch(TWDeferredDispatchDescriptor *, intptr_t param);
+
+/*
+ * Scanline Clipper (C-Buffer implementation)
+ */
+typedef union tagTWScanlineClipperNode {
+    struct {
+        uint16_t skip;  // pixels
+        uint16_t width; // pixels
+        union tagTWScanlineClipperNode *next; // or NULL
+    } span;
+    struct {
+        uint16_t height; // pixels
+        int16_t spanIndexOffset; // relative index to the first span, or zero if empty
+        union tagTWScanlineClipperNode *next; // or NULL
+    } row;
+    struct {
+        union tagTWScanlineClipperNode *next; // or NULL
+    } freelist;
+} TWScanlineClipperNode;
+
+typedef struct tagTWScanlineClipperState {
+    TWScanlineClipperNode *firstRow;
+    TWScanlineClipperNode *continuousFreeZoneBegin;
+    TWScanlineClipperNode *freelist;
+
+    uint16_t continuousFreeZoneSize;
+    uint16_t top, height;
+    uint16_t width;
+} TWScanlineClipperState;
+
+typedef struct tagTWScanlineClipperLineScanState {
+    uint16_t skip;
+
+    // fields below are private
+    uint16_t currentRowY;
+    TWScanlineClipperNode *currentRow;
+    uint16_t remainingDrawnLines;
+    uint16_t currentRowRemainingLines;
+} TWScanlineClipperLineScanState;
+
+typedef struct tagTWScanlineClipperSpanScanState {
+    uint16_t skip;
+    uint16_t width;
+
+    // fields below are private
+    uint16_t remainingDrawnPixels;
+    TWScanlineClipperNode *currentSpan;
+} TWScanlineClipperSpanScanState;
+
+// Clipping/Setup API
+extern void TWScanlineClipperInitialize(TWScanlineClipperState *state, TWScanlineClipperNode *heap, uint_fast16_t heapSize);
+extern void TWScanlineClipperSetClippingRect(TWScanlineClipperState *state, const TWRect *rect);
+extern void TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRect *rect);
+
+// Scanning API
+extern void TWScanlineClipperInitializeLineScanner(TWScanlineClipperLineScanState *lineScanState);
+extern uint8_t TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipperLineScanState *lineScanState, int_fast16_t startY, uint_fast16_t height);
+extern uint8_t TWScanlineClipperMoveToNextLine(const TWScanlineClipperState *state, TWScanlineClipperLineScanState *lineScanState);
+extern uint8_t TWScanlineClipperStartLine(const TWScanlineClipperState *state, TWScanlineClipperSpanScanState *spanScanState,
+    uint_fast16_t inSpanX, uint_fast16_t inSpanWidth, const TWScanlineClipperLineScanState *lineScanState);
+extern uint8_t TWScanlineClipperLineAdvance(TWScanlineClipperSpanScanState *spanScanState);
+
+
+

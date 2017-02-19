@@ -11,9 +11,7 @@
  *
  * attr access macro #_CAAM_#
  * numScanlineClipperNodes uint16_t         ATTR_numScanlineClipperNodes
- * scissor          TWRect           VAR_scissor     
  * scanlineClipper  TWScanlineClipperState  VAR_scanlineClipper
- * scanlineClipperLineScanner TWScanlineClipperLineScanState  VAR_scanlineClipperLineScanner
  * scanlineClipperNodes TWScanlineClipperNode*  VAR_scanlineClipperNodes
  *
  * call port function #_TCPF_#
