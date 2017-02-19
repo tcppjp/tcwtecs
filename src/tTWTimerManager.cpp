@@ -21,6 +21,23 @@
 
 #include "tTWTimerManager_tecsgen.h"
 
+// TWFireDeferredDispatch and TWFireTimer may not be defined if corresponding cell types aren't used at all!
+// (__has_include is provided by C++17/C++1z and a GCC extension)
+#if !__has_include("tTWTimer_tecsgen.h")
+void
+TWFireTimer(TWTimerDescriptor *timer)
+{
+    (void) timer;
+}
+#endif
+#if !__has_include("tTWDeferredDispatch_tecsgen.h")
+void
+TWFireDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param)
+{
+    (void)dd; (void)param;
+}
+#endif
+
 static int TWTimerComparer(TWPQNode *a, TWPQNode *b, intptr_t param)
 {
     TWTimerDescriptor *timer1 = TWPQNodeToTimerDescriptor(a);

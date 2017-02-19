@@ -49,7 +49,7 @@ eControl_clearEventReceiver(CELLIDX idx)
 }
 
 uint8_t
-eConrol_isEventReceiver(CELLIDX idx, Descriptor(sTWKeyboardEvent) receiver)
+eControl_isEventReceiver(CELLIDX idx, Descriptor(sTWKeyboardEvent) receiver)
 {
     CELLCB  *p_cellcb = GET_CELLCB(idx);
 
@@ -57,7 +57,7 @@ eConrol_isEventReceiver(CELLIDX idx, Descriptor(sTWKeyboardEvent) receiver)
 }
 
 void
-eControl_notifyKeyDown(CELLIDX idx, uint16_t keyCode)
+eDriverEvent_notifyKeyDown(CELLIDX idx, uint16_t keyCode)
 {
     CELLCB  *p_cellcb = GET_CELLCB(idx);
 
@@ -67,7 +67,7 @@ eControl_notifyKeyDown(CELLIDX idx, uint16_t keyCode)
 }
 
 void
-eControl_notifyKeyUp(CELLIDX idx, uint16_t keyCode)
+eDriverEvent_notifyKeyUp(CELLIDX idx, uint16_t keyCode)
 {
     CELLCB  *p_cellcb = GET_CELLCB(idx);
 

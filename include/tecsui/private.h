@@ -24,6 +24,10 @@
 #include "tecsui/types.h"
 #include "tecsui/geometry.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Private definitions - outsiders should not use them!
 
 /*
@@ -120,7 +124,7 @@ typedef struct tagTWTimerDescriptor {
 
 #define TWPQNodeToTimerDescriptor(nodePtr) TWPQNodeToObject(nodePtr, TWTimerDescriptor, node)
 
-extern void TWFireTimer(TWTimerDescriptor *);
+extern void TWFireTimer(TWTimerDescriptor *timer);
 
 /*
  * Deferred dispatch
@@ -138,7 +142,7 @@ typedef struct tagTWDeferredDispatchDescriptor {
 #define TWDLLNodeToTimerDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWTimerDescriptor, node)
 #define TWDLLNodeToDeferredDispatchDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWDeferredDispatchDescriptor, node)
 
-extern void TWFireDeferredDispatch(TWDeferredDispatchDescriptor *, intptr_t param);
+extern void TWFireDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param);
 
 /*
  * Scanline Clipper (C-Buffer implementation)
@@ -201,5 +205,8 @@ extern uint8_t TWScanlineClipperStartLine(const TWScanlineClipperState *state, T
     int_fast16_t inSpanX, uint_fast16_t inSpanWidth, const TWScanlineClipperLineScanState *lineScanState);
 extern uint8_t TWScanlineClipperLineAdvance(TWScanlineClipperSpanScanState *spanScanState);
 
+#ifdef __cplusplus
+}
+#endif
 
 

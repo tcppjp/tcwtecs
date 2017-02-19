@@ -6,13 +6,14 @@ SRCDIR := ..
 GENDIR := ./gen
 
 CC = clang
+CXX = clang++
 LD = clang++
 
 INCLUDES := -I$(TCWDIR)/include -I$(GENDIR)
 INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR)
 
-CFLAGS = $(INCLUDES) -g -DInline=inline
-CXXFLAGS = $(CFLAGS) -std=c++11
+CFLAGS = $(INCLUDES) -g "-DInline=static inline"
+CXXFLAGS = $(CFLAGS) -std=c++1z
 
 # FIXME: this needs to be customized for other platforms
 LDFLAGS = -framework SDL2 -framework Cocoa

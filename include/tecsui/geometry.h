@@ -8,6 +8,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct tagTWPoint {
 	int16_t x, y;
 } TWPoint;
@@ -53,3 +57,7 @@ bool TWRectIntersect(const TWRect *a, const TWRect *b, TWRect *outRect);
  * while the computation.
  */
 void TWRectUnion(const TWRect *a, const TWRect *b, TWRect *outRect);
+
+#ifdef __cplusplus
+}
+#endif

@@ -6,6 +6,10 @@
  */
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef TECSGEN
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -42,4 +46,8 @@ typedef uint32_t TWTimePoint;
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
+#endif
+
+#ifdef __cplusplus
+}
 #endif

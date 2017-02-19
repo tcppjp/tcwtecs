@@ -8,6 +8,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef uint8_t TWPixelFormat;
 
 /**
@@ -27,3 +31,7 @@ typedef uint8_t TWPixelFormat;
 #define TWPixelFormat16bppRGB565    ((TWPixelFormat)3)
 
 size_t TWComputeBitmapStride(TWPixelFormat format, size_t width);
+
+#ifdef __cplusplus
+}
+#endif
