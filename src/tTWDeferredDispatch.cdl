@@ -23,7 +23,7 @@ import("sTWTimerManagerLink.cdl");
 import("sTWDispatcherControl.cdl");
 import("sTWDispatchTarget.cdl");
 
-import_C("TWPrivate.h");
+import_C("tecsui/private.h");
 
 /**
  * Thread-safe mechanism to perform asynchronous dispatch.

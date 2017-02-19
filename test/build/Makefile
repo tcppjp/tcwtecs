@@ -11,7 +11,8 @@ LD = clang++
 INCLUDES := -I$(TCWDIR)/include -I$(GENDIR)
 INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR)
 
-CFLAGS = $(INCLUDES) -g
+CFLAGS = $(INCLUDES) -g -DInline=inline
+CXXFLAGS = $(CFLAGS) -std=c++11
 
 # FIXME: this needs to be customized for other platforms
 LDFLAGS = -framework SDL2 -framework Cocoa
@@ -25,6 +26,7 @@ include $(TCWDIR)/src/Makefile.tcw
 vpath %.c $(TCWDIR)/src
 vpath %.c $(GENDIR)
 vpath %.c $(SRCDIR)
+vpath %.cpp $(TCWDIR)/src
 
 # default targets
 default:		all

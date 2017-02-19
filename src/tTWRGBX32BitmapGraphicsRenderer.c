@@ -37,7 +37,7 @@
 /* Put prototype declaration and/or variale definition here #_PAC_# */
 #include <assert.h>
 #include "tTWRGBX32BitmapGraphicsRenderer_tecsgen.h"
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 #include "tecsui/bitmap.h"
 #include "tecsui/geometry.h"
 
@@ -96,7 +96,7 @@ eGraphicsDeviceOutput_setClippingRect(CELLIDX idx, const TWRect* rect)
 
 	TWScanlineClipperInitialize(&VAR_scanlineClipper, VAR_scanlineClipperNodes, ATTR_numScanlineClipperNodes);
 	TWScanlineClipperSetClippingRect(&VAR_scanlineClipper, rect);
-	VAR_scissor = rect;
+	VAR_scissor = *rect;
 
 	TWScanlineClipperInitializeLineScanner(&VAR_scanlineClipperLineScanner);
 }
@@ -244,7 +244,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 				if (!TWScanlineClipperStartLine(&VAR_scanlineClipper, &spanScanner, out_x1, out_x2 - out_x1,
 				  &VAR_scanlineClipperLineScanner)) {
-					goto Continue;
+					goto Continue1;
 				}
 
 				const char *cur_scanline = data;
@@ -275,7 +275,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 					}
 				} while (TWScanlineClipperLineAdvance(&spanScanner));
 
-			Continue:
+			Continue1:
 				pixels += tgt_w;
 				data += stride;
 			} while (TWScanlineClipperMoveToNextLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner));
@@ -290,7 +290,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 				if (!TWScanlineClipperStartLine(&VAR_scanlineClipper, &spanScanner, out_x1, out_x2 - out_x1,
 				  &VAR_scanlineClipperLineScanner)) {
-					goto Continue;
+					goto Continue2;
 				}
 
 				const uint32_t *in_pixels2 = in_pixels;
@@ -304,7 +304,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 					}
 				} while (TWScanlineClipperLineAdvance(&spanScanner));
 
-			Continue:
+			Continue2:
 				pixels += tgt_w;
 				in_pixels += src_w;
 			} while (TWScanlineClipperMoveToNextLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner));
@@ -320,7 +320,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 				if (!TWScanlineClipperStartLine(&VAR_scanlineClipper, &spanScanner, out_x1, out_x2 - out_x1,
 				  &VAR_scanlineClipperLineScanner)) {
-					goto Continue;
+					goto Continue3;
 				}
 
 				const uint16_t *in_pixels2 = in_pixels;
@@ -334,7 +334,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 					}
 				} while (TWScanlineClipperLineAdvance(&spanScanner));
 
-			Continue:
+			Continue3:
 				pixels += tgt_w;
 				in_pixels += src_w;
 			} while (TWScanlineClipperMoveToNextLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner));

@@ -16,12 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+// tTWKeyboardInputManager_tecsgen.h requires `assert` implicitly :(
+#include <assert.h>
+
 #include "tTWKeyboardInputManager_tecsgen.h"
 
 void
-eControl_setEventReceiver(Descriptor(sTWKeyboardEvent) receiver)
+eControl_setEventReceiver(CELLIDX idx, Descriptor(sTWKeyboardEvent) receiver)
 {
-    if (is_cReceiver_joined() && cReceiver_refer_to_descriptor() == receiver) {
+    CELLCB  *p_cellcb = GET_CELLCB(idx);
+
+    if (is_cReceiver_joined() && TWTecsDescriptorEquals(sTWKeyboardEvent, cReceiver_refer_to_descriptor(), receiver)) {
         return;
     }
     if (is_cReceiver_joined()) {
@@ -32,31 +38,39 @@ eControl_setEventReceiver(Descriptor(sTWKeyboardEvent) receiver)
 }
 
 void
-eControl_clearEventReceiver(void)
+eControl_clearEventReceiver(CELLIDX idx)
 {
+    CELLCB  *p_cellcb = GET_CELLCB(idx);
+
     if (is_cReceiver_joined()) {
         cReceiver_leave();
     }
-    cReceiver_set_unjoin();
+    cReceiver_unjoin();
 }
 
 uint8_t
-eConrol_isEventReceiver(Descriptor(sTWKeyboardEvent) receiver)
+eConrol_isEventReceiver(CELLIDX idx, Descriptor(sTWKeyboardEvent) receiver)
 {
-    return is_cReceiver_joined() && cReceiver_refer_to_descriptor() == receiver;
+    CELLCB  *p_cellcb = GET_CELLCB(idx);
+
+    return is_cReceiver_joined() && TWTecsDescriptorEquals(sTWKeyboardEvent, cReceiver_refer_to_descriptor(), receiver);
 }
 
 void
-eControl_notifyKeyDown(uint16_t keyCode)
+eControl_notifyKeyDown(CELLIDX idx, uint16_t keyCode)
 {
+    CELLCB  *p_cellcb = GET_CELLCB(idx);
+
     if (is_cReceiver_joined()) {
         cReceiver_keyDown(keyCode);
     }
 }
 
 void
-eControl_notifyKeyUp(uint16_t keyCode)
+eControl_notifyKeyUp(CELLIDX idx, uint16_t keyCode)
 {
+    CELLCB  *p_cellcb = GET_CELLCB(idx);
+
     if (is_cReceiver_joined()) {
         cReceiver_keyUp(keyCode);
     }

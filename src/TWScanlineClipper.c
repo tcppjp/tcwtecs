@@ -19,7 +19,7 @@
 
 #include <assert.h>
 
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 
 static TWScanlineClipperNode *
 TWScanlineClipperAllocateNode(TWScanlineClipperState *state)
@@ -27,7 +27,7 @@ TWScanlineClipperAllocateNode(TWScanlineClipperState *state)
     TWScanlineClipperNode *result;
     if (state->freelist) {
         result = state->freelist;
-        state->freelist = state->freelist->next;
+        state->freelist = state->freelist->freelist.next;
         return result;
     }
     if (state->continuousFreeZoneSize) {
@@ -59,12 +59,12 @@ TWScanlineClipperSetClippingRect(TWScanlineClipperState *state, const TWRect *re
 {
     TWScanlineClipperNode *span = TWScanlineClipperAllocateNode(state);
     span->span.skip = rect->x;
-    span->span.wodth = rect->w;
-    span->span.nextIndexOffset = 0;
+    span->span.width = rect->w;
+    span->span.next = NULL;
 
     TWScanlineClipperNode *row = TWScanlineClipperAllocateNode(state);
     row->row.height = rect->h;
-    row->row.nextIndexOffset = 0;
+    row->row.next = NULL;
     row->row.spanIndexOffset = span - row;
 
     state->firstRow = row;
@@ -95,10 +95,10 @@ TWScanlineClipperCloneRow(TWScanlineClipperState *state, TWScanlineClipperNode *
             } else {
                 clonedRow->row.spanIndexOffset = clonedSpan - clonedRow;
             }
-            clonedRow->row.skip = span->row.skip;
-            clonedRow->row.width = span->row.width;
-            nextFieldFromPreviousSpan = &clonedRow->row.next;
-            span = span->next;
+            clonedSpan->span.skip = span->span.skip;
+            clonedSpan->span.width = span->span.width;
+            nextFieldFromPreviousSpan = &clonedSpan->span.next;
+            span = span->span.next;
         } while (span);
         *nextFieldFromPreviousSpan = NULL;
     } else {
@@ -185,7 +185,7 @@ TWScanlineClipperSubtractSpan(TWScanlineClipperState *state, TWScanlineClipperNo
                         row->row.spanIndexOffset = 0;
                     }
                 }
-                TWScanlineClipperFreeNode(span);
+                TWScanlineClipperFreeNode(state, span);
                 span = span->span.next;
             }
         } else if (inSpanRightEdge == span->span.width) {
@@ -213,7 +213,7 @@ TWScanlineClipperSubtractSpan(TWScanlineClipperState *state, TWScanlineClipperNo
                         row->row.spanIndexOffset = 0;
                     }
                 }
-                TWScanlineClipperFreeNode(span);
+                TWScanlineClipperFreeNode(state, span);
                 break;
             }
         } else {
@@ -251,7 +251,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
     uint_fast16_t skippedLines = rect->y;
     uint_fast16_t remainingLines = rect->h;
     if (skippedLines < state->top) {
-        uint_fast16_t marginLines = state->top - skip;
+        uint_fast16_t marginLines = state->top - skippedLines;
         if (marginLines > remainingLines) {
             return;
         }
@@ -295,7 +295,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
 
     // Split the row at `y = rect->y` if needed
     if (skippedLines > 0) {
-        TWScanlineClipperNode *bottomRow = TWScanlineClipperCloneRow(row);
+        TWScanlineClipperNode *bottomRow = TWScanlineClipperCloneRow(state, row);
         if (!bottomRow) {
             // Out of nodes
             return;
@@ -315,7 +315,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
     while (remainingLines && row) {
         if (remainingLines < row->row.height) {
             // That's the last row to subtract and we need to split it
-            TWScanlineClipperNode *bottomRow = TWScanlineClipperCloneRow(row);
+            TWScanlineClipperNode *bottomRow = TWScanlineClipperCloneRow(state, row);
             if (!bottomRow) {
                 // Out of nodes
                 return;
@@ -374,11 +374,11 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
                 state->firstRow = NULL;
             }
             state->height -= prev->row.height;
-            TWScanlineClipperFreeNode(prev);
+            TWScanlineClipperFreeNode(state, prev);
         } else if (!row->row.spanIndexOffset) {
             prev->row.next = row->row.next;
             prev->row.height += row->row.height;
-            TWScanlineClipperFreeNode(row);
+            TWScanlineClipperFreeNode(state, row);
         }
     }
 }
@@ -411,13 +411,13 @@ TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipp
         height = state->top + state->height - startY;
     }
 
-    if (!state->currentRow || line < state->currentRowY) {
+    if (!lineScanState->currentRow || startY < lineScanState->currentRowY) {
         currentRow = state->firstRow;
         currentRowY = state->top;
     } else {
-        currentRow = state->currentRow;
-        startY -= state->currentRowY;
-        currentRowY = state->currentRowY;
+        currentRow = lineScanState->currentRow;
+        startY -= lineScanState->currentRowY;
+        currentRowY = lineScanState->currentRowY;
     }
 
     assert(currentRow);
@@ -444,13 +444,13 @@ TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipp
         assert(currentRow); // The last row cannot be empty
     }
 
-    state->currentRow = currentRow;
-    state->currentRowY = currentRowY;
-    state->currentRowRemainingLines = currentRow->row.height - startY;
-    state->remainingDrawnLines = height;
-    state->skip = skippedLines;
+    lineScanState->currentRow = currentRow;
+    lineScanState->currentRowY = currentRowY;
+    lineScanState->currentRowRemainingLines = currentRow->row.height - startY;
+    lineScanState->remainingDrawnLines = height;
+    lineScanState->skip = skippedLines;
 
-    assert(state->currentRowRemainingLines > 0);
+    assert(lineScanState->currentRowRemainingLines > 0);
 
     return 1;
 }
@@ -458,43 +458,43 @@ TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipp
 uint8_t
 TWScanlineClipperMoveToNextLine(const TWScanlineClipperState *state, TWScanlineClipperLineScanState *lineScanState)
 {
-    assert(state->currentRow);
-    assert(state->remainingDrawnLines);
-    if ((--state->remainingDrawnLines) == 0) {
+    assert(lineScanState->currentRow);
+    assert(lineScanState->remainingDrawnLines);
+    if ((--lineScanState->remainingDrawnLines) == 0) {
         return 0;
     }
-    if ((--state->currentRowRemainingLines) != 0) {
-        state->skip = 0;
+    if ((--lineScanState->currentRowRemainingLines) != 0) {
+        lineScanState->skip = 0;
         return 1;
     }
 
-    TWScanlineClipperNode *currentRow = state->currentRow;
+    TWScanlineClipperNode *currentRow = lineScanState->currentRow;
 
     // If this is the last row, it should be impossible to reach here since
-    // that means `state->remainingDrawnLines` is zero
+    // that means `lineScanState->remainingDrawnLines` is zero
     assert(currentRow->row.next);
 
-    state->currentRowY += currentRow->row.height;
+    lineScanState->currentRowY += currentRow->row.height;
     currentRow = currentRow->row.next;
 
     if (!currentRow->row.spanIndexOffset) {
         // Empty row
-        if (state->remainingDrawnLines <= currentRow->row.height) {
+        if (lineScanState->remainingDrawnLines <= currentRow->row.height) {
             return 0;
         }
 
-        state->skip = currentRow->row.height;
-        state->remainingDrawnLines -= currentRow->row.height;
+        lineScanState->skip = currentRow->row.height;
+        lineScanState->remainingDrawnLines -= currentRow->row.height;
 
-        state->currentRowY += currentRow->row.height;
+        lineScanState->currentRowY += currentRow->row.height;
         currentRow = currentRow->row.next;
         assert(currentRow); // The last row cannot be empty
     } else {
-        state->skip = 0;
+        lineScanState->skip = 0;
     }
 
-    state->currentRowRemainingLines = currentRow->row.height;
-    state->currentRow = currentRow;
+    lineScanState->currentRowRemainingLines = currentRow->row.height;
+    lineScanState->currentRow = currentRow;
 
     return 1;
 }
@@ -536,7 +536,6 @@ TWScanlineClipperStartLine(const TWScanlineClipperState *state, TWScanlineClippe
         //   span:      XXXXX
         //  input:            IIIIIIIII ...
         inSpanX -= rightEdge;
-        prev = span;
         span = span->span.next;
     }
 

@@ -21,7 +21,7 @@
 
 #include "tTWTimerManager_tecsgen.h"
 
-static int TWTimerComparer(TWPQNode *a, TWPQNode *b, void *param)
+static int TWTimerComparer(TWPQNode *a, TWPQNode *b, intptr_t param)
 {
     TWTimerDescriptor *timer1 = TWPQNodeToTimerDescriptor(a);
     TWTimerDescriptor *timer2 = TWPQNodeToTimerDescriptor(b);
@@ -43,8 +43,8 @@ static uint32_t TWTTimerManagerGetBaseTime(CELLCB *p_cellcb)
     uint32_t baseTime = cDispatcherLink_getTime();
     if (!TWPQIsEmpty(&VAR_timerQueue)) {
         TWTimerDescriptor *firstTimer = TWPQNodeToTimerDescriptor(TWPQGetTopNode(&VAR_timerQueue));
-        uint32_t nextTick = firstTimer->nextTick;
-        int32_t diff = (int32_t)(baseTime - nextTick);
+        uint32_t nextTickTime = firstTimer->nextTickTime;
+        int32_t diff = (int32_t)(baseTime - nextTickTime);
         if (diff > 0) {
             baseTime -= diff;
         }
@@ -57,8 +57,8 @@ static void TWTimerManagerUpdateTimeout(CELLCB *p_cellcb)
     if (!TWPQIsEmpty(&VAR_timerQueue)) {
         TWTimerDescriptor *firstTimer = TWPQNodeToTimerDescriptor(TWPQGetTopNode(&VAR_timerQueue));
         uint32_t currentTime = cDispatcherLink_getTime();
-        uint32_t nextTick = firstTimer->nextTick;
-        int32_t diff = (int32_t)(nextTick - currentTime);
+        uint32_t nextTickTime = firstTimer->nextTickTime;
+        int32_t diff = (int32_t)(nextTickTime - currentTime);
         if (diff < 0) {
             diff = 0;
         }
@@ -80,7 +80,7 @@ eTimerManager_registerTimer(CELLIDX idx, TWTimerDescriptor *timer)
     // bad things would happen
     uint32_t baseTime = TWTTimerManagerGetBaseTime(p_cellcb);
 
-    timer->nextTickTime = cDispatcher_getTime() + timer->interval;
+    timer->nextTickTime = cDispatcherLink_getTime() + timer->interval;
 
     if (VAR_isProcessingTimers) {
         timer->flags |= kTWTimerFlagsPending;
@@ -89,7 +89,7 @@ eTimerManager_registerTimer(CELLIDX idx, TWTimerDescriptor *timer)
     } else {
         timer->flags |= kTWTimerFlagsActive;
 
-        TWPQInsertNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, &baseTime);
+        TWPQInsertNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, (intptr_t)&baseTime);
 
         // FIXME: would be nice to defer this call; we don't wanna call this so often
         TWTimerManagerUpdateTimeout(p_cellcb);
@@ -111,7 +111,7 @@ eTimerManager_unregisterTimer(CELLIDX idx, TWTimerDescriptor *timer)
         bool needsToUpdateTimeout = TWPQNodeToTimerDescriptor(TWPQGetTopNode(&VAR_timerQueue)) == timer;
 
         uint32_t baseTime = TWTTimerManagerGetBaseTime(p_cellcb);
-        TWPQRemoveNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, &baseTime);
+        TWPQRemoveNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, (intptr_t)&baseTime);
 
         if (needsToUpdateTimeout) {
             TWTimerManagerUpdateTimeout(p_cellcb);
@@ -134,7 +134,7 @@ eTimerManager_registerDeferredDispatch(CELLIDX idx, TWDeferredDispatchDescriptor
         ret = 0;
         goto end;
     }
-    TWDLLPushBackNode(&VAR_deferredDispatchPendingList, &dd->node);
+    TWDLLPushBackNode(&VAR_deferredDispatchQueue, &dd->node);
 
     cDispatcherLink_startDeferredDispatch();
 
@@ -156,7 +156,7 @@ eTimerManager_unregisterDeferredDispatch(CELLIDX idx, TWDeferredDispatchDescript
         ret = 0;
         goto end;
     }
-    TWDLLRemoveNode(&VAR_deferredDispatchPendingList, &dd->node);
+    TWDLLRemoveNode(&VAR_deferredDispatchQueue, &dd->node);
     dd->node.prev = NULL;
 
 end:
@@ -176,13 +176,13 @@ eTimerManager_handleTimeout(CELLIDX idx)
 
     while (!TWPQIsEmpty(&VAR_timerQueue)) {
         TWTimerDescriptor *timer = TWPQNodeToTimerDescriptor(TWPQGetTopNode(&VAR_timerQueue));
-        uint32_t nextTick = timer->nextTick;
-        int32_t diff = (int32_t)(nextTick - currentTime);
+        uint32_t nextTickTime = timer->nextTickTime;
+        int32_t diff = (int32_t)(nextTickTime - currentTime);
         if (diff > 0) {
             break;
         }
 
-        TWPQRemoveNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, &baseTime);
+        TWPQRemoveNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, (intptr_t)&baseTime);
         uint8_t flags = timer->flags;
         if (flags & kTWTimerFlagsPeriodic) {
             timer->nextTickTime = currentTime + timer->interval;
@@ -205,7 +205,7 @@ eTimerManager_handleTimeout(CELLIDX idx)
             TWDLLNode *next = node->next;
             TWTimerDescriptor *timer = TWDLLNodeToTimerDescriptor(node);
             timer->flags = (timer->flags & ~kTWTimerFlagsPending) | kTWTimerFlagsActive;
-            TWPQInsertNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, &baseTime);
+            TWPQInsertNode(&VAR_timerQueue, &timer->node, &TWTimerComparer, (intptr_t)&baseTime);
             node = next;
         } while (node != first);
         VAR_timerPendingList.first = NULL;
@@ -221,7 +221,7 @@ eTimerManager_handleDeferredDispatch(CELLIDX idx)
 
     while (true) {
         cDispatcherLink_enterCriticalSection();
-        if (TWPQIsEmpty(&VAR_deferredDispatchQueue)) {
+        if (TWDLLIsEmpty(&VAR_deferredDispatchQueue)) {
             cDispatcherLink_leaveCriticalSection();
             return;
         }
@@ -230,10 +230,10 @@ eTimerManager_handleDeferredDispatch(CELLIDX idx)
 
         // Need to extract the param before leaving CS or it could be soon updated by
         // a pending deferred dispatch request
-        intptr_t param = first->param;
+        intptr_t param = TWDLLNodeToDeferredDispatchDescriptor(first)->param;
 
         // Make the deferred dispatch inactive (allowing for subsequent request)
-        first->node.prev = NULL;
+        first->prev = NULL;
 
         cDispatcherLink_leaveCriticalSection();
 

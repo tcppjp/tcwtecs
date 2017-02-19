@@ -17,7 +17,7 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import_C("TWSDL2.h");
+import_C("tecsui/SDL2.h");
 
 /**
  * SDLイベントシステムにおけるイベントの伝達に用いられるシグニチャ。

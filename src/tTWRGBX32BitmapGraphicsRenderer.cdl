@@ -21,7 +21,7 @@ import("TWTypes.cdl");
 import("sTWGraphicsDeviceOutput.cdl");
 import("sTWRenderTargetBitmapSource.cdl");
 
-import_C("TWPrivate.h");
+import_C("tecsui/private.h");
 
 celltype tTWRGBX32BitmapGraphicsRenderer
 {

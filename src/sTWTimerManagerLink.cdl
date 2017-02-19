@@ -17,7 +17,7 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import_C("TWPrivate.h");
+import_C("tecsui/private.h");
 
 /**
  * TCWTecs infrastructure. Do not call any members in the user application.

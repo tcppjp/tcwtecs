@@ -19,16 +19,16 @@
 
 #include <assert.h>
 
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 
-void TWDLLPushBackNode(TWPQHeader *header, TWPQNode *node)
+void TWDLLPushBackNode(TWDLLHeader *header, TWDLLNode *node)
 {
     assert(header);
     assert(node);
 
     if (header->first) {
-        TWPQNode *first = header->first;
-        TWPQNode *last = first->prev;
+        TWDLLNode *first = header->first;
+        TWDLLNode *last = first->prev;
         node->prev = last;
         node->next = first;
         last->next = node;
@@ -42,14 +42,14 @@ void TWDLLPushBackNode(TWPQHeader *header, TWPQNode *node)
     assert(node->prev->next == node);
 }
 
-void TWDLLPushFrontNode(TWPQHeader *header, TWPQNode *node)
+void TWDLLPushFrontNode(TWDLLHeader *header, TWDLLNode *node)
 {
     assert(header);
     assert(node);
 
     if (header->first) {
-        TWPQNode *first = header->first;
-        TWPQNode *last = first->prev;
+        TWDLLNode *first = header->first;
+        TWDLLNode *last = first->prev;
         node->prev = last;
         node->next = first;
         last->next = node;
@@ -65,7 +65,7 @@ void TWDLLPushFrontNode(TWPQHeader *header, TWPQNode *node)
     assert(header->first == node);
 }
 
-void TWDLLInsertNode(TWPQHeader *header, TWPQNode *node, TWPQNode *at)
+void TWDLLInsertNode(TWDLLHeader *header, TWDLLNode *node, TWDLLNode *at)
 {
     assert(header);
     assert(node);
@@ -75,7 +75,7 @@ void TWDLLInsertNode(TWPQHeader *header, TWPQNode *node, TWPQNode *at)
     if (header->first == at) {
         TWDLLPushFrontNode(header, node);
     } else {
-        TWPQNode *t = node->prev = at->prev;
+        TWDLLNode *t = node->prev = at->prev;
         node->next = at;
         t->next = node;
         at->prev = node;
@@ -85,7 +85,7 @@ void TWDLLInsertNode(TWPQHeader *header, TWPQNode *node, TWPQNode *at)
     assert(node->prev->next == node);
 }
 
-void TWDLLRemoveNode(TWPQHeader *header, TWPQNode *node)
+void TWDLLRemoveNode(TWDLLHeader *header, TWDLLNode *node)
 {
     assert(header);
     assert(node);

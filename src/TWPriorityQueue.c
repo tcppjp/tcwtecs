@@ -19,7 +19,7 @@
 
 #include <assert.h>
 
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 
 /**
  * TWULog2(1) = 0, TWULog2(2) = TWULog2(3) = 1, TWULog2(4) = 2, ...
@@ -180,10 +180,10 @@ void TWPQRemoveNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, i
     }
 
     if (t2) {
-        t2->children[t2->child[1] == node] = NULL; // delete
+        t2->children[t2->children[1] == node] = NULL; // delete
     }
     if (t3) {
-        t3->children[t3->child[1] == last] = last;
+        t3->children[t3->children[1] == last] = last;
     }
 
     // Restore the heap property

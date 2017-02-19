@@ -22,6 +22,7 @@
 #include <stddef.h>
 
 #include "tecsui/types.h"
+#include "tecsui/geometry.h"
 
 // Private definitions - outsiders should not use them!
 
@@ -33,7 +34,9 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #define TWGetContainingObject(childPtr, ParentType, childFieldName) \
-    (ObjectType *)((char*)(nodePtr) - offsetof(ObjectType, objectNodeFieldName))
+    ((ParentType *)((char*)(childPtr) - offsetof(ParentType, childFieldName)))
+
+#define TWTecsDescriptorEquals(signatureName, a, b) ((a).vdes == (b).vdes)
 
 /*
  * Priority queue (min-heap; takes O(log N) to extract the minimum element)
@@ -80,10 +83,12 @@ typedef struct tagTWDLLNode {
 #define TWDLLNodeToObject(nodePtr, ObjectType, objectNodeFieldName) \
     TWGetContainingObject(nodePtr, ObjectType, objectNodeFieldName)
 
-void TWDLLPushBackNode(TWPQHeader *header, TWPQNode *node);
-void TWDLLPushFrontNode(TWPQHeader *header, TWPQNode *node);
-void TWDLLInsertNode(TWPQHeader *header, TWPQNode *node, TWPQNode *at);
-void TWDLLRemoveNode(TWPQHeader *header, TWPQNode *node);
+#define TWDLLIsEmpty(headerPtr) (!(headerPtr)->first)
+
+void TWDLLPushBackNode(TWDLLHeader *header, TWDLLNode *node);
+void TWDLLPushFrontNode(TWDLLHeader *header, TWDLLNode *node);
+void TWDLLInsertNode(TWDLLHeader *header, TWDLLNode *node, TWDLLNode *at);
+void TWDLLRemoveNode(TWDLLHeader *header, TWDLLNode *node);
 
 /*
  * Timer
@@ -130,7 +135,8 @@ typedef struct tagTWDeferredDispatchDescriptor {
     intptr_t param;
 } TWDeferredDispatchDescriptor;
 
-#define TWDLLNodeToDeferredDispatchDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWDeferredDispatchDescriptor, pendingNode)
+#define TWDLLNodeToTimerDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWTimerDescriptor, node)
+#define TWDLLNodeToDeferredDispatchDescriptor(nodePtr) TWDLLNodeToObject(nodePtr, TWDeferredDispatchDescriptor, node)
 
 extern void TWFireDeferredDispatch(TWDeferredDispatchDescriptor *, intptr_t param);
 
@@ -192,7 +198,7 @@ extern void TWScanlineClipperInitializeLineScanner(TWScanlineClipperLineScanStat
 extern uint8_t TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipperLineScanState *lineScanState, int_fast16_t startY, uint_fast16_t height);
 extern uint8_t TWScanlineClipperMoveToNextLine(const TWScanlineClipperState *state, TWScanlineClipperLineScanState *lineScanState);
 extern uint8_t TWScanlineClipperStartLine(const TWScanlineClipperState *state, TWScanlineClipperSpanScanState *spanScanState,
-    uint_fast16_t inSpanX, uint_fast16_t inSpanWidth, const TWScanlineClipperLineScanState *lineScanState);
+    int_fast16_t inSpanX, uint_fast16_t inSpanWidth, const TWScanlineClipperLineScanState *lineScanState);
 extern uint8_t TWScanlineClipperLineAdvance(TWScanlineClipperSpanScanState *spanScanState);
 
 

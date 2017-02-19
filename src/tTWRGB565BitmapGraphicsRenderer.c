@@ -33,7 +33,7 @@
 /* Put prototype declaration and/or variale definition here #_PAC_# */
 #include <assert.h>
 #include "tTWRGB565BitmapGraphicsRenderer_tecsgen.h"
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 #include "tecsui/bitmap.h"
 #include "tecsui/geometry.h"
 

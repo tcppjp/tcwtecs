@@ -18,7 +18,7 @@
  */
 
 #include "tecsui/geometry.h"
-#include "TWPrivate.h"
+#include "tecsui/private.h"
 
 bool TWRectIntersect(const TWRect *a, const TWRect *b, TWRect *outRect)
 {

@@ -32,7 +32,7 @@ namespace
     SDL_threadID g_mainThreadID = 0;
     TWTimerToken g_currentTimeoutToken = 1;
     TWTimerToken g_nextTimeoutToken = 2;
-    unordered_map<intrptr_t, SDL_TimerID> g_timers;
+    unordered_map<intptr_t, SDL_TimerID> g_timers;
 
     SDL_mutex *g_ddMutex;
     SDL_sem *g_ddWait; // note: SDL's mutex is recursive and cannot be used for this purpose
