@@ -10,7 +10,7 @@ Before building the project, the directory that contains `tecsgen` (TECS generat
 
 Development package of [SDL2 library](https://www.libsdl.org/) is required to build the project.
 
-1. Move to the build directory by `cd test/build`
+1. Move to the build directory by `cd test/sdl-basic/build`
 2. Run `make tecs` to generate TECS interface code from TECS CDL files. The `gen` directory will be created.
 3. Run `make` to build the executable file.
 4. RUn `./test` to start the example program.
