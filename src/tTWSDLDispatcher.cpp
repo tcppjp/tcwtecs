@@ -44,6 +44,7 @@ namespace
 #define TWSE_TIMEOUT                1
 #define TWSE_DISPATCH               2
 #define TWSE_DEFERRED_DISPATCH      3
+#define TWSE_QUIT                   4
 
 static Uint32 SDLTimeoutTimerHandler(Uint32 interval, void *param)
 {
@@ -51,6 +52,8 @@ static Uint32 SDLTimeoutTimerHandler(Uint32 interval, void *param)
     event.type = SDL_USEREVENT;
     event.user.code = TWSE_TIMEOUT;
     event.user.data1 = param;
+    SDL_PushEvent(&event);
+
     return 1000; // can't let timer removed here; that would cause multithreading problem
 }
 
@@ -68,6 +71,8 @@ eDispatcher_invoke(Descriptor(sTWDispatchTarget) target, intptr_t param)
         event.user.code = TWSE_DISPATCH;
         event.user.data1 = &target;
         event.user.data2 = reinterpret_cast<void *>(param);
+
+        SDL_PushEvent(&event);
 
         SDL_SemWait(g_ddWait);
         SDL_UnlockMutex(g_ddMutex);
@@ -108,7 +113,11 @@ eDispatcherLink_clearTimeout(void)
 void
 eDispatcherLink_startDeferredDispatch(void)
 {
-    // TODO: deferred dispach
+    SDL_Event event;
+    event.type = SDL_USEREVENT;
+    event.user.code = TWSE_DEFERRED_DISPATCH;
+
+    SDL_PushEvent(&event);
 }
 
 TWTimePoint
@@ -178,6 +187,11 @@ eSDLDispatcher_enterMainLoop(void)
 
                         SDL_SemPost(g_ddWait);
                     } break;
+                    case TWSE_DEFERRED_DISPATCH:
+                        cTimerManager_handleDeferredDispatch();
+                        break;
+                    case TWSE_QUIT:
+                        return;
                 }
                 break;
         }
@@ -188,5 +202,10 @@ eSDLDispatcher_enterMainLoop(void)
 void
 eSDLDispatcher_quit(void)
 {
+    SDL_Event event;
+    event.type = SDL_USEREVENT;
+    event.user.code = TWSE_QUIT;
+    SDL_PushEvent(&event);
+
 }
 
