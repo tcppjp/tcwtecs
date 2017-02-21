@@ -9,6 +9,9 @@
  * Don't edit the comments between #[<...>]# and #[</...>]#
  * These comment are used by tecsmerege when merging.
  *
+ * attr access macro #_CAAM_#
+ * active           uint8_t          VAR_active
+ *
  * call port function #_TCPF_#
  * call port: cKeyboardInputManager signature: sTWKeyboardInputManagerControl context:task
  *   void           cKeyboardInputManager_setEventReceiver( Descriptor( sTWKeyboardEvent ) receiver );
@@ -24,9 +27,6 @@
  *   void           cViewControl_getBounds( TWRect* outRect );
  *   void           cViewControl_getGlobalBounds( TWRect* outRect );
  *   void           cViewControl_setNeedsUpdate( );
- *   void           cViewControl_setMouseCapture( );
- *   void           cViewControl_releaseMouseCapture( );
- *   bool           cViewControl_hasMouseCapture( );
  * call port: cAction signature: sAction context:task optional:true
  *   bool_t     is_cAction_joined()                     check if joined
  *   void           cAction_activated( );
@@ -77,7 +77,7 @@ ePaintEvent_paint(CELLIDX idx)
 	TWColor shade3 = TWMakeColor(64, 64, 64);
 	TWColor shade4 = TWMakeColor(128, 128, 128);
 
-	if (cViewControl_hasMouseCapture()) {
+	if (VAR_active) {
 		shade1 = TWMakeColor(64, 64, 64);
 		shade2 = TWMakeColor(128, 128, 128);
 		shade3 = TWMakeColor(255, 255, 255);
@@ -129,55 +129,58 @@ ePaintEvent_paint(CELLIDX idx)
 	}
 }
 
-/* #[<ENTRY_PORT>]# eMouseEvent
- * entry port: eMouseEvent
- * signature:  sTWMouseEvent
+/* #[<ENTRY_PORT>]# eTouchEvent
+ * entry port: eTouchEvent
+ * signature:  sTWTouchEvent
  * context:    task
  * #[</ENTRY_PORT>]# */
 
-/* #[<ENTRY_FUNC>]# eMouseEvent_mouseDown
- * name:         eMouseEvent_mouseDown
- * global_name:  tSimpleButtonCore_eMouseEvent_mouseDown
+/* #[<ENTRY_FUNC>]# eTouchEvent_touchStart
+ * name:         eTouchEvent_touchStart
+ * global_name:  tSimpleButtonCore_eTouchEvent_touchStart
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eMouseEvent_mouseDown(CELLIDX idx, TWPoint point, uint8_t button)
+eTouchEvent_touchStart(CELLIDX idx, uint8_t touchId, TWPoint location)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
-	if (button != 1) {
+	if (touchId != 0) {
 		return;
 	}
 
+	VAR_active = 1;
+
 	cKeyboardInputManager_setEventReceiver(cKeyboardEvent_refer_to_descriptor());
-	cViewControl_setMouseCapture();
 	cViewControl_setNeedsUpdate();
 }
 
-/* #[<ENTRY_FUNC>]# eMouseEvent_mouseMove
- * name:         eMouseEvent_mouseMove
- * global_name:  tSimpleButtonCore_eMouseEvent_mouseMove
+/* #[<ENTRY_FUNC>]# eTouchEvent_touchMove
+ * name:         eTouchEvent_touchMove
+ * global_name:  tSimpleButtonCore_eTouchEvent_touchMove
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eMouseEvent_mouseMove(CELLIDX idx, TWPoint point)
+eTouchEvent_touchMove(CELLIDX idx, uint8_t touchId, TWPoint location)
 {
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
+	(void) idx;
 }
 
-/* #[<ENTRY_FUNC>]# eMouseEvent_mouseUp
- * name:         eMouseEvent_mouseUp
- * global_name:  tSimpleButtonCore_eMouseEvent_mouseUp
+/* #[<ENTRY_FUNC>]# eTouchEvent_touchEnd
+ * name:         eTouchEvent_touchEnd
+ * global_name:  tSimpleButtonCore_eTouchEvent_touchEnd
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eMouseEvent_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
+eTouchEvent_touchEnd(CELLIDX idx, uint8_t touchId, TWPoint location)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
-	if (button != 1) {
+	if (touchId != 0) {
 		return;
 	}
+
+	VAR_active = 0;
 
 	TWRect bounds;
 	cBoundsSource_get(&bounds);
@@ -185,13 +188,31 @@ eMouseEvent_mouseUp(CELLIDX idx, TWPoint point, uint8_t button)
 	// is the mouse pointer still inside the button?
 	// (user can cancel the action by moving the mouse pointer
 	// outside the button)
-	if (point.x >= 0 && point.y >= 0 && point.x < bounds.w && point.y < bounds.h) {
+	if (location.x >= 0 && location.y >= 0 && location.x < bounds.w && location.y < bounds.h) {
 		if (is_cAction_joined()) {
 			cAction_activated();
 		}
 	}
 
-	cViewControl_releaseMouseCapture();
+	cViewControl_setNeedsUpdate();
+}
+
+/* #[<ENTRY_FUNC>]# eTouchEvent_touchCancel
+ * name:         eTouchEvent_touchCancel
+ * global_name:  tSimpleButtonCore_eTouchEvent_touchCancel
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+void
+eTouchEvent_touchCancel(CELLIDX idx, uint8_t touchId, TWPoint location)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+
+	if (touchId != 0) {
+		return;
+	}
+
+	VAR_active = 0;
+
 	cViewControl_setNeedsUpdate();
 }
 

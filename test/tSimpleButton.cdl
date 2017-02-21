@@ -10,7 +10,7 @@ import("sAction.cdl");
 
 celltype tSimpleButtonCore {
 	entry sTWPaintEvent ePaintEvent;
-	entry sTWMouseEvent eMouseEvent;
+	entry sTWTouchEvent eTouchEvent;
 
 	// TODO: 本当は optional でいいけど、そうすると composite の非 optional な
 	//       call に接続できなくなってしまう! (tecsgen v1.4.0)
@@ -22,16 +22,21 @@ celltype tSimpleButtonCore {
 
 	[optional] call sAction cAction;
 
-	/** 自身の cKeyboardEvent と結合して下さい。 */
 	entry sTWKeyboardEvent eKeyboardEvent;
-	/** 自身の eKeyboardEvent と結合して下さい。 */
 	[ref_desc] call sTWKeyboardEvent cKeyboardEvent;
+
+	var {
+		uint8_t active = 0;
+	};
 };
 
 composite tSimpleButton {
 	[optional] call sTWSuperviewLink cSuperview;
 	entry sTWSubviewLink eSuperview;
 	call sTWDesktopLink cDesktopLink;
+
+	entry sTWTouchInputSubviewLink eTouchInputSuperview;
+	call sTWTouchInputSuperviewLink cTouchInputSuperview;
 
 	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 
@@ -63,10 +68,29 @@ composite tSimpleButton {
 		cStyleSource => composite.cStyleSource;
 
 		cPaintEvent = Core.ePaintEvent;
-		cMouseEvent = Core.eMouseEvent;
+	};
+
+	cell tTWTouchInputElement TouchInputElement {
+		cSuperview => composite.cTouchInputSuperview;
+
+		cTouchEvent = Core.eTouchEvent;
+
+		cBoundsSource => composite.cBoundsSource;
+		cStyleSource => composite.cStyleSource;
+	};
+
+	cell tTWValueSourceCallbackSplitter BoundsSplitter {
+		cCallback[0] = View.eBoundsSource;
+		cCallback[1] = TouchInputElement.eBoundsSource;
+	};
+
+	cell tTWValueSourceCallbackSplitter StyleSplitter {
+		cCallback[0] = View.eStyleSource;
+		cCallback[1] = TouchInputElement.eStyleSource;
 	};
 
 	composite.eSuperview => View.eSuperview;
-	composite.eStyleSource => View.eStyleSource;
-	composite.eBoundsSource => View.eBoundsSource;
+	composite.eStyleSource => BoundsSplitter.eCallback;
+	composite.eBoundsSource => StyleSplitter.eCallback;
+	composite.eTouchInputSuperview => TouchInputElement.eSuperview;
 };

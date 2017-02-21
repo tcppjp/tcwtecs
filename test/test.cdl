@@ -25,6 +25,11 @@ cell tTWTimerManager TimerManager {
 cell tTWKeyboardInputManager KeyboardInputManager {
 };
 
+cell tTWTouchInputManager TouchInputManager {
+	maxNumTouches = 1;
+	cElement[0] = TouchInputManager.eNullElementLink;
+};
+
 cell tTWSDLGraphicsDevice SDL {
 	width = 120;
 	height = 120;
@@ -34,6 +39,7 @@ cell tTWSDLGraphicsDevice SDL {
 	eSDLEvent <= Dispatcher.cSDLEvent[0];
 
 	cKeyboardInputDriverEvent = KeyboardInputManager.eDriverEvent;
+	cTouchInputDriverEvent = TouchInputManager.eDriverEvent;
 };
 
 cell tTWDesktop Desktop {
@@ -51,6 +57,9 @@ composite tMainWindow {
 	[optional] call sTWSuperviewLink cSuperview;
 	entry sTWSubviewLink eSuperview;
 	call sTWDesktopLink cDesktopLink;
+
+	entry sTWTouchInputSubviewLink eTouchInputSuperview;
+	call sTWTouchInputSuperviewLink cTouchInputSuperview;
 
 	call sTWKeyboardInputManagerControl cKeyboardInputManager;
 
@@ -83,6 +92,18 @@ composite tMainWindow {
 	};
 	composite.eSuperview => View.eSuperview;
 
+	cell tTWTouchInputElement TouchInputElement {
+		cSubview[0] = Button1.eTouchInputSuperview;
+		cSubview[1] = Button2.eTouchInputSuperview;
+		cSubview[2] = Button3.eTouchInputSuperview;
+
+		cSuperview => composite.cTouchInputSuperview;
+
+		cBoundsSource = View_Bounds.eSource;
+		cStyleSource = View_Style.eSource;
+	};
+	composite.eTouchInputSuperview => TouchInputElement.eSuperview;
+
 	cell tMainWindowCore Core {
 		cDC = View.eDrawingContext;
 	};
@@ -101,6 +122,7 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button1 {
 		cSuperview = View.eSubview[0];
+		cTouchInputSuperview = TouchInputElement.eSubview[0];
 		cDesktopLink => composite.cDesktopLink;
 		cKeyboardInputManager => composite.cKeyboardInputManager;
 
@@ -111,6 +133,7 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button2 {
 		cSuperview = View.eSubview[1];
+		cTouchInputSuperview = TouchInputElement.eSubview[1];
 		cDesktopLink => composite.cDesktopLink;
 		cKeyboardInputManager => composite.cKeyboardInputManager;
 
@@ -121,6 +144,7 @@ composite tMainWindow {
 	};
 	cell tSimpleButton Button3 {
 		cSuperview = View.eSubview[2];
+		cTouchInputSuperview = TouchInputElement.eSubview[2];
 		cDesktopLink => composite.cDesktopLink;
 		cKeyboardInputManager => composite.cKeyboardInputManager;
 
@@ -136,17 +160,22 @@ cell tMainWindow MainWindow {
 	eSuperview <= Desktop.cSubview;
 	cDesktopLink = Desktop.eDesktopLink;
 	cKeyboardInputManager = KeyboardInputManager.eControl;
+
+	cTouchInputSuperview = TouchInputManager.eSubview;
+	eTouchInputSuperview <= TouchInputManager.cSubview;
 };
 
 [active, singleton]
 celltype tTestApp {
 	call sTWSDLGraphicsDeviceControl cSDL;
+	call sTWSDLDispatcherControl cSDLDispatcher;
 
 	call sTWDesktopControl cDesktop;
 };
 
 cell tTestApp App {
 	cSDL = SDL.eControl;
+	cSDLDispatcher = Dispatcher.eSDLDispatcher;
 
 	cDesktop = Desktop.eDesktop;
 };
