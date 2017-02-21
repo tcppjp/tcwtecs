@@ -24,9 +24,9 @@ eDeferredDispatch_start(CELLIDX idx, intptr_t param)
     CELLCB  *p_cellcb = GET_CELLCB(idx);
     TWDeferredDispatchDescriptor *dd = &VAR_descriptor;
 
-    dd->cellcb = (void *)p_cellcb
+    dd->cellcb = (void *)p_cellcb;
 
-    return cDeferredDispatchManager_registerDeferredDispatch(dd, param);
+    return cTimerManager_registerDeferredDispatch(dd, param);
 }
 
 uint8_t
@@ -35,13 +35,13 @@ eDeferredDispatch_clear(CELLIDX idx)
     CELLCB  *p_cellcb = GET_CELLCB(idx);
     TWDeferredDispatchDescriptor *dd = &VAR_descriptor;
 
-    return cDeferredDispatchManager_unregisterDeferredDispatch(dd);
+    return cTimerManager_unregisterDeferredDispatch(dd);
 }
 
 void
-TWFireDeferredDispatch(TWDeferredDispatchDescriptor *dd)
+TWFireDeferredDispatch(TWDeferredDispatchDescriptor *dd, intptr_t param)
 {
     CELLCB *p_cellcb = (CELLCB *)dd->cellcb;
 
-    cTarget_main(dd->param);
+    cTarget_main(param);
 }

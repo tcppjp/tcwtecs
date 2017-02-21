@@ -17,6 +17,7 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+[callback]
 signature sTWDispatchTarget {
     /**
      * `sTWDispatcherControl::invoke` や、遅延ディスパッチ、タイマにより、メインスレッドで呼び出される関数。
