@@ -1,16 +1,17 @@
 
 TECSGEN := tecsgen
 
-TCWDIR := ../..
+TCWDIR := ../../..
 SRCDIR := ..
+COMMONDIR := $(SRCDIR)/../common
 GENDIR := ./gen
 
 CC = clang
 CXX = clang++
 LD = clang++
 
-INCLUDES := -I$(TCWDIR)/include -I$(GENDIR)
-INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR)
+INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR)
+INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR)
 
 CFLAGS = $(INCLUDES) -g "-DInline=static inline"
 CXXFLAGS = $(CFLAGS) -std=c++1z
@@ -27,6 +28,7 @@ include $(TCWDIR)/src/Makefile.tcw
 vpath %.c $(TCWDIR)/src
 vpath %.c $(GENDIR)
 vpath %.c $(SRCDIR)
+vpath %.c $(COMMONDIR)
 vpath %.cpp $(TCWDIR)/src
 
 # default targets

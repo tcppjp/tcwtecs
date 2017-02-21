@@ -9,8 +9,8 @@ gen
 *.c_3
 
 # executables of example project
-/test/build/*.exe
-/test/build/test
+/test/*/build/*.exe
+/test/*/build/test
 
 # OS X's infamous thingy
 .DS_Store
