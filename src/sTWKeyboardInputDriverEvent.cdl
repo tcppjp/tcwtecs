@@ -17,8 +17,6 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import("sTWKeyboardEvent.cdl");
-
 signature sTWKeyboardInputDriverEvent
 {
     void notifyKeyDown([in] uint16_t keyCode);
