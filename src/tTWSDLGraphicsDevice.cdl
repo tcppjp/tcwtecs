@@ -52,6 +52,7 @@ celltype tTWSDLGraphicsDeviceCore
 	var {
 		void *window;
 		void *surface;
+		uint8_t mouseButtonState = 0;
 	};
 };
 

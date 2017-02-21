@@ -270,17 +270,31 @@ eSDLEvent_handle(CELLIDX idx, SDL_Event* event)
 			if (event->button.windowID != SDL_GetWindowID(wnd)) {
 				return 0;
 			}
-			// TODO: emulate touch event
+			if (event->button.button == 1) {
+				VAR_mouseButtonState = 1;
+				SDL_CaptureMouse(SDL_TRUE);
+				TWPoint point = {event->button.x, event->button.y};
+				cTouchInputDriverEvent_touchStart(0, point);
+			}
 			return 1;
 		case SDL_MOUSEBUTTONUP:
 			if (event->button.windowID != SDL_GetWindowID(wnd)) {
 				return 0;
 			}
-			// TODO: emulate touch event
+			if (event->button.button == 1) {
+				TWPoint point = {event->button.x, event->button.y};
+				SDL_CaptureMouse(SDL_FALSE);
+				cTouchInputDriverEvent_touchEnd(0, point);
+				VAR_mouseButtonState = 0;
+			}
 			return 1;
 		case SDL_MOUSEMOTION:
-			if (event->button.windowID != SDL_GetWindowID(wnd)) {
+			if (event->motion.windowID != SDL_GetWindowID(wnd)) {
 				return 0;
+			}
+			if (VAR_mouseButtonState) {
+				TWPoint point = {event->motion.x, event->motion.y};
+				cTouchInputDriverEvent_touchMove(0, point);
 			}
 			return 1;
 		case SDL_KEYDOWN:
