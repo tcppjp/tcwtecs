@@ -36,6 +36,7 @@
  * #[</POSTAMBLE>]#*/
 
 int main(int argc, char **argv) {
+    SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS | SDL_INIT_VIDEO);
     cSDLDispatcher_initialize();
 	cSDL_initialize();
 	cDesktop_repaintAll();
