@@ -33,6 +33,8 @@ celltype tTWSDLGraphicsDeviceCore
 	entry sTWGraphicsDeviceOutput eOutput;
 	call sTWGraphicsDeviceOutput cOutput;
 
+	call sTWGraphicsDeviceInput cGraphicsDevice;
+
 	call sTWKeyboardInputDriverEvent cKeyboardInputDriverEvent;
 	call sTWTouchInputDriverEvent cTouchInputDriverEvent;
 
@@ -61,6 +63,7 @@ composite tTWSDLGraphicsDevice
 	call sTWKeyboardInputDriverEvent cKeyboardInputDriverEvent;
 	call sTWTouchInputDriverEvent cTouchInputDriverEvent;
 	entry sTWGraphicsDeviceOutput eGraphicsDevice;
+	call sTWGraphicsDeviceInput cGraphicsDevice;
 
 	entry sTWSDLGraphicsDeviceControl eControl;
 
@@ -84,6 +87,7 @@ composite tTWSDLGraphicsDevice
 		title = composite.title;
 		windowFlags = composite.windowFlags;
 		cOutput = Renderer.eGraphicsDeviceOutput;
+		cGraphicsDevice => composite.cGraphicsDevice;
 	};
 	cell tTWRGBX32BitmapGraphicsRenderer Renderer {
 		cRenderTargetBitmapSource = Core.eBitmapSource;

@@ -38,9 +38,15 @@
  *   void           cOutput_fillRect( TWColor color, const TWRect* rect );
  *   void           cOutput_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cOutput_update( const TWRect* rect );
+ * call port: cGraphicsDevice signature: sTWGraphicsDeviceInput context:task
+ *   void           cGraphicsDevice_resize( );
  * call port: cKeyboardInputDriverEvent signature: sTWKeyboardInputDriverEvent context:task
  *   void           cKeyboardInputDriverEvent_notifyKeyDown( uint16_t keyCode );
  *   void           cKeyboardInputDriverEvent_notifyKeyUp( uint16_t keyCode );
+ * call port: cTouchInputDriverEvent signature: sTWTouchInputDriverEvent context:task
+ *   void           cTouchInputDriverEvent_touchStart( uint8_t touchId, TWPoint location );
+ *   void           cTouchInputDriverEvent_touchMove( uint8_t touchId, TWPoint location );
+ *   void           cTouchInputDriverEvent_touchEnd( uint8_t touchId, TWPoint location );
  *
  * #[</PREAMBLE>]# */
 
@@ -243,8 +249,22 @@ eSDLEvent_handle(CELLIDX idx, SDL_Event* event)
 			if (event->window.windowID != SDL_GetWindowID(wnd)) {
 				return 0;
 			}
-			// (nothing to handle so far...
-			//  maybe SDL_WINDOWEVENT_SIZE_CHANGED?)
+			switch (event->window.event) {
+				case SDL_WINDOWEVENT_SIZE_CHANGED: {
+					int new_w, new_h;
+					SDL_GetWindowSize(wnd, &new_w, &new_h);
+
+					SDL_FreeSurface(GetSDLSurface(p_cellcb));
+
+					// FIXME: duplicated code
+					SDL_Surface *surf = SDL_CreateRGBSurface(
+						0, new_w, new_h, 32, 0xff, 0xff00, 0xff0000, 0);
+					VAR_surface = (void *)surf;
+
+					cGraphicsDevice_resize();
+					break;
+				}
+			}
 			return 1;
 		case SDL_MOUSEBUTTONDOWN:
 			if (event->button.windowID != SDL_GetWindowID(wnd)) {
