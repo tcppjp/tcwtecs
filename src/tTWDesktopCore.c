@@ -66,6 +66,8 @@ PaintDirtyRegion(CELLCB *p_cellcb)
 	cGraphicsDevice_getScreenSize(&desktop_size);
 	TWRect desktop_rect = {0, 0, desktop_size.w, desktop_size.h};
 
+	cGraphicsDevice_setClippingRect(&dirty_rect);
+
 	cSubview_paint(&dirty_rect, &desktop_rect);
 
 	cGraphicsDevice_update(&dirty_rect);
@@ -115,6 +117,8 @@ eDesktop_repaintAll(CELLIDX idx)
 	VAR_dirtyRect.h = 0;
 
 	TWRect dr = {0, 0, desktop_size.w, desktop_size.h};
+
+	cGraphicsDevice_setClippingRect(&dr);
 
 	cSubview_paint(&dr, &dr);
 

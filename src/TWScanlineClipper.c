@@ -414,6 +414,7 @@ TWScanlineClipperMoveToLine(const TWScanlineClipperState *state, TWScanlineClipp
     if (!lineScanState->currentRow || startY < lineScanState->currentRowY) {
         currentRow = state->firstRow;
         currentRowY = state->top;
+        startY -= currentRowY;
     } else {
         currentRow = lineScanState->currentRow;
         startY -= lineScanState->currentRowY;
