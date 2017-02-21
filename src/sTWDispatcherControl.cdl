@@ -32,6 +32,8 @@ signature sTWDispatcherControl {
      */
     void invoke([in] Descriptor(sTWDispatchTarget) target, [in] intptr_t param);
 
-    // TODO: tryInvoke?
-    // TOOD: invokeSynchronized, beginInvoke, endInvoke?
+    /**
+     * 時刻を取得します。基準とする時刻は任意ですが、それは変化しません。取得される時刻は stable です。
+     */
+    TWTimePoint getTime(void);
 };

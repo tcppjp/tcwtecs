@@ -79,6 +79,12 @@ eDispatcher_invoke(Descriptor(sTWDispatchTarget) target, intptr_t param)
     }
 }
 
+TWTimePoint
+eDispatcher_getTime()
+{
+    return (TWTimePoint) SDL_GetTicks();
+}
+
 void
 eDispatcherLink_setTimeout(TWDuration duration)
 {
