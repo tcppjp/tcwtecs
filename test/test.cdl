@@ -44,6 +44,7 @@ cell tTWSDLGraphicsDevice SDL {
 
 cell tTWDesktop Desktop {
 	cGraphicsDevice = SDL.eGraphicsDevice;
+	cTimerManager = TimerManager.eTimerManager;
 };
 
 celltype tMainWindowCore {

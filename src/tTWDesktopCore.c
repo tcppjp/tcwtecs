@@ -22,8 +22,8 @@
  * These comment are used by tecsmerege when merging.
  *
  * attr access macro #_CAAM_#
- * dirtyRect        TWRect           VAR_dirtyRect   
- * paintOffset      TWPoint          VAR_paintOffset 
+ * dirtyRect        TWRect           VAR_dirtyRect
+ * paintOffset      TWPoint          VAR_paintOffset
  *
  * call port function #_TCPF_#
  * call port: cSubview signature: sTWSubviewLink context:task optional:true
@@ -38,31 +38,20 @@
  *   void           cGraphicsDevice_fillRect( TWColor color, const TWRect* rect );
  *   void           cGraphicsDevice_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
  *   void           cGraphicsDevice_update( const TWRect* rect );
+ * call port: cRepaintDeferredDispatch signature: sTWDeferredDispatchControl context:task
+ *   uint8_t        cRepaintDeferredDispatch_start( intptr_t param );
+ *   uint8_t        cRepaintDeferredDispatch_cancel( );
  *
  * #[</PREAMBLE>]# */
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
-#include "tTWDesktop_tecsgen.h"
+#include "tTWDesktopCore_tecsgen.h"
 #include "tecsui/types.h"
 #include "tecsui/geometry.h"
 
-/* entry port function #_TEPF_# */
-/* #[<ENTRY_PORT>]# eDesktop
- * entry port: eDesktop
- * signature:  sTWDesktopControl
- * context:    task
- * #[</ENTRY_PORT>]# */
-
-/* #[<ENTRY_FUNC>]# eDesktop_paint
- * name:         eDesktop_paint
- * global_name:  tTWDesktop_eDesktop_paint
- * oneway:       false
- * #[</ENTRY_FUNC>]# */
-void
-eDesktop_paint(CELLIDX idx)
+static void
+PaintDirtyRegion(CELLCB *p_cellcb)
 {
-	CELLCB	*p_cellcb = GET_CELLCB(idx);
-
 	TWRect dirty_rect = VAR_dirtyRect;
 	if (dirty_rect.w <= 0 || dirty_rect.h <= 0) {
 		// no region to update
@@ -82,9 +71,35 @@ eDesktop_paint(CELLIDX idx)
 	cGraphicsDevice_update(&dirty_rect);
 }
 
+static void
+ScheduleRepaint(CELLCB *p_cellcb)
+{
+	cRepaintDeferredDispatch_start(0);
+}
+
+/* entry port function #_TEPF_# */
+/* #[<ENTRY_PORT>]# eDesktop
+ * entry port: eDesktop
+ * signature:  sTWDesktopControl
+ * context:    task
+ * #[</ENTRY_PORT>]# */
+
+/* #[<ENTRY_FUNC>]# eDesktop_paint
+ * name:         eDesktop_paint
+ * global_name:  tTWDesktopCore_eDesktop_paint
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+void
+eDesktop_paint(CELLIDX idx)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+
+	PaintDirtyRegion(p_cellcb);
+}
+
 /* #[<ENTRY_FUNC>]# eDesktop_repaintAll
  * name:         eDesktop_repaintAll
- * global_name:  tTWDesktop_eDesktop_repaintAll
+ * global_name:  tTWDesktopCore_eDesktop_repaintAll
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -114,7 +129,7 @@ eDesktop_repaintAll(CELLIDX idx)
 
 /* #[<ENTRY_FUNC>]# eSubview_setNeedsUpdate
  * name:         eSubview_setNeedsUpdate
- * global_name:  tTWDesktop_eSubview_setNeedsUpdate
+ * global_name:  tTWDesktopCore_eSubview_setNeedsUpdate
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -142,11 +157,13 @@ eSubview_setNeedsUpdate(CELLIDX idx, const TWRect* bounds)
 	} else {
 		TWRectUnion(dr, &clipped_bounds, dr);
 	}
+
+	ScheduleRepaint(p_cellcb);
 }
 
 /* #[<ENTRY_FUNC>]# eSubview_getGlobalLocation
  * name:         eSubview_getGlobalLocation
- * global_name:  tTWDesktop_eSubview_getGlobalLocation
+ * global_name:  tTWDesktopCore_eSubview_getGlobalLocation
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -167,7 +184,7 @@ eSubview_getGlobalLocation(CELLIDX idx, TWPoint* outLoc)
 
 /* #[<ENTRY_FUNC>]# eDesktopLink_fillRect
  * name:         eDesktopLink_fillRect
- * global_name:  tTWDesktop_eDesktopLink_fillRect
+ * global_name:  tTWDesktopCore_eDesktopLink_fillRect
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -182,7 +199,7 @@ eDesktopLink_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
 
 /* #[<ENTRY_FUNC>]# eDesktopLink_drawBitmap
  * name:         eDesktopLink_drawBitmap
- * global_name:  tTWDesktop_eDesktopLink_drawBitmap
+ * global_name:  tTWDesktopCore_eDesktopLink_drawBitmap
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -198,7 +215,7 @@ eDesktopLink_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat format, con
 
 /* #[<ENTRY_FUNC>]# eDesktopLink_preparePaint
  * name:         eDesktopLink_preparePaint
- * global_name:  tTWDesktop_eDesktopLink_preparePaint
+ * global_name:  tTWDesktopCore_eDesktopLink_preparePaint
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -212,7 +229,7 @@ eDesktopLink_preparePaint(CELLIDX idx, const TWRect* globalClipRect, const TWPoi
 
 /* #[<ENTRY_FUNC>]# eDesktopLink_subtractClippingRect
  * name:         eDesktopLink_subtractClippingRect
- * global_name:  tTWDesktop_eDesktopLink_subtractClippingRect
+ * global_name:  tTWDesktopCore_eDesktopLink_subtractClippingRect
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
@@ -231,7 +248,7 @@ eDesktopLink_subtractClippingRect(CELLIDX idx, const TWRect* globalClipRect)
 
 /* #[<ENTRY_FUNC>]# eGraphicsDevice_resize
  * name:         eGraphicsDevice_resize
- * global_name:  tTWDesktop_eGraphicsDevice_resize
+ * global_name:  tTWDesktopCore_eGraphicsDevice_resize
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
@@ -247,6 +264,27 @@ eGraphicsDevice_resize(CELLIDX idx)
 	VAR_dirtyRect.y = 0;
 	VAR_dirtyRect.w = desktop_size.w;
 	VAR_dirtyRect.h = desktop_size.h;
+
+	ScheduleRepaint(p_cellcb);
+}
+
+/* #[<ENTRY_PORT>]# eRepaintDeferredDispatch
+ * entry port: eRepaintDeferredDispatch
+ * signature:  sTWDispatchTarget
+ * context:    task
+ * #[</ENTRY_PORT>]# */
+
+/* #[<ENTRY_FUNC>]# eRepaintDeferredDispatch_main
+ * name:         eRepaintDeferredDispatch_main
+ * global_name:  tTWDesktopCore_eRepaintDeferredDispatch_main
+ * oneway:       false
+ * #[</ENTRY_FUNC>]# */
+void
+eRepaintDeferredDispatch_main(CELLIDX idx, intptr_t param)
+{
+	CELLCB	*p_cellcb = GET_CELLCB(idx);
+
+	PaintDirtyRegion(p_cellcb);
 }
 
 /* #[<POSTAMBLE>]#

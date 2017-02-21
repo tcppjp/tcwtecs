@@ -24,8 +24,31 @@ import("sTWDesktopLink.cdl");
 import("sTWGraphicsDeviceInput.cdl");
 import("sTWGraphicsDeviceOutput.cdl");
 import("sTWDesktopControl.cdl");
+import("tTWDeferredDispatch.cdl");
 
-celltype tTWDesktop
+/** @private */
+celltype tTWDesktopCore
+{
+	entry sTWDesktopControl eDesktop;
+
+	[optional] call sTWSubviewLink cSubview;
+	entry sTWSuperviewLink eSubview;
+
+	entry sTWDesktopLink eDesktopLink;
+
+	entry sTWGraphicsDeviceInput eGraphicsDevice;
+	call sTWGraphicsDeviceOutput cGraphicsDevice;
+
+    call sTWDeferredDispatchControl cRepaintDeferredDispatch;
+    entry sTWDispatchTarget eRepaintDeferredDispatch;
+
+	var {
+		TWRect dirtyRect;
+		TWPoint paintOffset;
+	};
+};
+
+composite tTWDesktop
 {
 	entry sTWDesktopControl eDesktop;
 
@@ -40,8 +63,25 @@ celltype tTWDesktop
 	entry sTWGraphicsDeviceInput eGraphicsDevice;
 	call sTWGraphicsDeviceOutput cGraphicsDevice;
 
-	var {
-		TWRect dirtyRect;
-		TWPoint paintOffset;
+	// Join to the timer manager
+	call sTWTimerManagerLink cTimerManager;
+
+	cell tTWDeferredDispatch RepaintDeferredDispatch
+	{
+		cTimerManager => composite.cTimerManager;
 	};
+
+	cell tTWDesktopCore Core
+	{
+		cSubview => composite.cSubview;
+		cGraphicsDevice => composite.cGraphicsDevice;
+
+		cRepaintDeferredDispatch = RepaintDeferredDispatch.eDeferredDispatch;
+		eRepaintDeferredDispatch <= RepaintDeferredDispatch.cTarget;
+	};
+
+	composite.eDesktop => Core.eDesktop;
+	composite.eSubview => Core.eSubview;
+	composite.eDesktopLink => Core.eDesktopLink;
+	composite.eGraphicsDevice => Core.eGraphicsDevice;
 };
