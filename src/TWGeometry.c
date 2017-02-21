@@ -44,3 +44,9 @@ void TWRectUnion(const TWRect *a, const TWRect *b, TWRect *outRect)
 	outRect->x = x; outRect->y = y;
 	outRect->w = w; outRect->h = h;
 }
+
+bool TWRectContainsPoint(const TWRect *rect, const TWPoint *point)
+{
+	return point->x >= rect->x && point->y >= rect->y &&
+		point->x < rect->x + rect->w && point->y < rect->y + rect->h;
+}

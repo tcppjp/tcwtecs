@@ -58,6 +58,8 @@ bool TWRectIntersect(const TWRect *a, const TWRect *b, TWRect *outRect);
  */
 void TWRectUnion(const TWRect *a, const TWRect *b, TWRect *outRect);
 
+bool TWRectContainsPoint(const TWRect *rect, const TWPoint *point);
+
 #ifdef __cplusplus
 }
 #endif

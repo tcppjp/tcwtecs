@@ -17,7 +17,76 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// celltype tTWTouchInputManager
-// {
-    // TODO: tTWTouchInputManager
-// };
+import("sTWTouchInputDriverEvent.cdl");
+import("sTWTouchInputSubviewLink.cdl");
+import("sTWTouchInputSuperviewLink.cdl");
+import("sTWTouchInputElementLink.cdl");
+import_C("tecsui/geometry.h");
+
+/** @private */
+celltype tTWTouchInputManagerCore
+{
+    /** Join this to the root view's `tTWTouchInputElement`'s eSuperview */
+    call sTWTouchInputSubviewLink cSubview;
+
+    /** Join this to the root view's `tTWTouchInputElement`'s cSuperview */
+    entry sTWTouchInputSuperviewLink eSubview;
+
+    entry sTWTouchInputDriverEvent eDriverEvent;
+
+    attr {
+        uint8_t maxNumTouches = 1;
+    };
+
+    [dynamic, ref_desc] call sTWTouchInputElementLink cElement[];
+
+    [ref_desc] call sTWTouchInputElementLink cNullElementLink;
+
+    entry sTWTouchInputElementLink eNullElementLink;
+
+    var {
+        /**
+         * Element-local touch identifiers.
+         *
+         * WARNING: The value is offseted by one; zero means "nil", and one means
+         *          zero (the first touch identifier).
+         */
+        [size_is(maxNumTouches)] uint8_t *localTouchId;
+    };
+};
+
+composite tTWTouchInputManager
+{
+    /** Join this to the root view's `tTWTouchInputElement` */
+    call sTWTouchInputSubviewLink cSubview;
+
+    /** Join this to the root view's `tTWTouchInputElement`'s cSuperview */
+    entry sTWTouchInputSuperviewLink eSubview;
+
+    entry sTWTouchInputDriverEvent eDriverEvent;
+
+    attr {
+        uint8_t maxNumTouches = 1;
+    };
+
+    /**
+     * This call port array has the number of elements that must much the value
+     * of the attribute `maxNumTouches`, and every element should be joined to
+     * `eNullElementLink` of the same cell.
+     */
+    [dynamic, ref_desc] call sTWTouchInputElementLink cElement[];
+    entry sTWTouchInputElementLink eNullElementLink;
+
+    cell tTWTouchInputManagerCore Core
+    {
+        cSubview => composite.cSubview;
+        cElement => composite.cElement;
+        maxNumTouches = composite.maxNumTouches;
+
+        cNullElementLink = Core.eNullElementLink;
+    };
+
+    composite.eSubview => Core.eSubview;
+    composite.eDriverEvent => Core.eDriverEvent;
+    composite.eNullElementLink => Core.eNullElementLink;
+};

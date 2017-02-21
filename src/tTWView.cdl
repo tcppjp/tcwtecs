@@ -22,8 +22,6 @@ import("sTWSubviewLink.cdl");
 import("sTWSuperviewLink.cdl");
 import("sTWViewControl.cdl");
 import("sTWDesktopLink.cdl");
-import("sTWMouseEvent.cdl");
-import("sTWKeyboardEvent.cdl");
 import("sTWPaintEvent.cdl");
 import("sTWViewStyleSource.cdl");
 import("sTWRectSource.cdl");
@@ -48,7 +46,6 @@ celltype tTWView
 	entry sTWDrawingContext eDrawingContext;
 
 	// events
-	[optional] call sTWMouseEvent cMouseEvent;
 	[optional] call sTWPaintEvent cPaintEvent;
 
 	// properties

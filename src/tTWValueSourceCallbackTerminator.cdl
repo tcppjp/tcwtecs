@@ -17,9 +17,17 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-signature sTWMouseEvent
+import("sTWValueSourceCallback.cdl");
+import("tTWValueSourceCallbackSplitter.cdl");
+
+/**
+ * Discards value change notification events.
+ */
+composite tTWValueSourceCallbackTerminator
 {
-	void mouseDown([in] TWPoint point, [in] uint8_t button);
-	void mouseMove([in] TWPoint point);
-	void mouseUp([in] TWPoint point, [in] uint8_t button);
+    entry sTWValueSourceCallback eCallback;
+
+    cell tTWValueSourceCallbackSplitter Splitter {};
+
+    composite.eCallback => Splitter.eCallback;
 };

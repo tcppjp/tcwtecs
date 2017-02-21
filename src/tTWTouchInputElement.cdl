@@ -1,0 +1,96 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("sTWViewStyleSource.cdl");
+import("sTWRectSource.cdl");
+import("sTWValueSourceCallback.cdl");
+import("sTWTouchInputSubviewLink.cdl");
+import("sTWTouchInputSuperviewLink.cdl");
+import("sTWTouchInputElementLink.cdl");
+import("sTWTouchEvent.cdl");
+import("tTWValueSourceCallbackTerminator.cdl");
+
+celltype tTWTouchInputElementCore
+{
+    /** Join this to subviews' `tTWTouchInputElement`s `eSuperview` */
+    [optional] call sTWTouchInputSubviewLink cSubview[];
+
+    /** Join this to the superview's `tTWTouchInputElement`s `cSubview` */
+    entry sTWTouchInputSubviewLink eSuperview;
+
+    /** Join this to subviews' `tTWTouchInputElement`s `cSuperview` */
+    entry sTWTouchInputSuperviewLink eSubview[];
+
+    /** Join this to the superview's `tTWTouchInputElement`s `eSubview` */
+    call sTWTouchInputSuperviewLink cSuperview;
+
+    /** Touch event handler. */
+    [optional] call sTWTouchEvent cTouchEvent;
+
+    // Join these two ports together for each tTWTouchInputElement
+    entry sTWTouchInputElementLink eElementLink;
+    [ref_desc] call sTWTouchInputElementLink cElementLink;
+
+    // properties (provide the same values as those given to the view!)
+    call sTWViewStyleSource cStyleSource;
+
+    call sTWRectSource cBoundsSource;
+};
+
+composite tTWTouchInputElement
+{
+    /** Join this to subviews' `tTWTouchInputElement`s `eSuperview` */
+    [optional] call sTWTouchInputSubviewLink cSubview[];
+
+    /** Join this to the superview's `tTWTouchInputElement`s `cSubview` */
+    entry sTWTouchInputSubviewLink eSuperview;
+
+    /** Join this to subviews' `tTWTouchInputElement`s `cSuperview` */
+    entry sTWTouchInputSuperviewLink eSubview[];
+
+    /** Join this to the superview's `tTWTouchInputElement`s `eSubview` */
+    call sTWTouchInputSuperviewLink cSuperview;
+
+    /** Touch event handler. */
+    [optional] call sTWTouchEvent cTouchEvent;
+
+    // properties (provide the same values as those given to the view!)
+    call sTWViewStyleSource cStyleSource;
+    entry sTWValueSourceCallback eStyleSource;
+
+    call sTWRectSource cBoundsSource;
+    entry sTWValueSourceCallback eBoundsSource;
+
+    cell tTWTouchInputElementCore Core
+    {
+        cSubview => composite.cSubview;
+        cSuperview => composite.cSuperview;
+        cTouchEvent => composite.cTouchEvent;
+        cStyleSource => composite.cStyleSource;
+        cBoundsSource => composite.cBoundsSource;
+        cElementLink = Core.eElementLink;
+    };
+
+    cell tTWValueSourceCallbackTerminator CallbackTerminator {};
+
+    composite.eSuperview => Core.eSuperview;
+    composite.eSubview => Core.eSubview;
+    composite.eStyleSource => CallbackTerminator.eCallback; // TODO: cancel touch when view disappears?
+    composite.eBoundsSource => CallbackTerminator.eCallback;
+};

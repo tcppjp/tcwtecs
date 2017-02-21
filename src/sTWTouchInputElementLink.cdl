@@ -17,15 +17,14 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import("tTWView.cdl");
-import("tTWDesktop.cdl");
-import("tTWTimerManager.cdl");
-import("tTWSDLGraphicsDevice.cdl");
-import("tTWSDLDispatcher.cdl");
-import("tTWKeyboardInputManager.cdl");
-import("tTWTouchInputManager.cdl");
-import("tTWTouchInputElement.cdl");
-import("tTWStaticRectSource.cdl");
-import("tTWStaticViewStyleSource.cdl");
-import("tTWValueSourceCallbackSplitter.cdl");
-import("tTWValueSourceCallbackTerminator.cdl");
+import("TWTypes.cdl");
+
+/**
+ * TCWTecs infrastructure. Do not call any members in the user application.
+ */
+signature sTWTouchInputElementLink
+{
+    void touchStart([in] uint8_t touchId, [in] TWPoint location);
+    void touchMove([in] uint8_t touchId, [in] TWPoint location);
+    void touchEnd([in] uint8_t touchId, [in] TWPoint location);
+};

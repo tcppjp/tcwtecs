@@ -17,15 +17,20 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import("tTWView.cdl");
-import("tTWDesktop.cdl");
-import("tTWTimerManager.cdl");
-import("tTWSDLGraphicsDevice.cdl");
-import("tTWSDLDispatcher.cdl");
-import("tTWKeyboardInputManager.cdl");
-import("tTWTouchInputManager.cdl");
-import("tTWTouchInputElement.cdl");
-import("tTWStaticRectSource.cdl");
-import("tTWStaticViewStyleSource.cdl");
-import("tTWValueSourceCallbackSplitter.cdl");
-import("tTWValueSourceCallbackTerminator.cdl");
+import("TWTypes.cdl");
+
+import("sTWTouchInputElementLink.cdl");
+
+/**
+ * TCWTecs infrastructure. Do not call any members in the user application.
+ */
+[callback]
+signature sTWTouchInputSubviewLink
+{
+    /**
+     * @param location Location of the touch (in the subview's coordinate)
+     * @return Non-zero value if a handle was found. Zero otherwise.
+     */
+    uint8_t findTouchEventHandler([in] const TWPoint *location,
+        [out] Descriptor(sTWTouchInputElementLink) *outLink);
+};
