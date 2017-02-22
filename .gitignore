@@ -2,6 +2,8 @@
 # object files and generated files
 *.o
 gen
+Image_*.c
+Image_*.h
 
 # tecsmerge backup
 *.c_1

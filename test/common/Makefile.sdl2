@@ -27,7 +27,7 @@ CC = clang
 CXX = clang++
 LD = clang++
 
-INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR)
+INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I.
 INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR)
 
 CFLAGS = $(INCLUDES) -g "-DInline=static inline"

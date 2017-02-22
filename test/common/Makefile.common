@@ -21,3 +21,5 @@ MAKETCWIMAGE := $(TCWDIR)/tools/maketcwimage.rb
 
 Image_Digits.c Image_Digits.h: $(IMAGEDIR)/Digits.png $(MAKETCWIMAGE)
 	$(MAKETCWIMAGE) -i $(IMAGEDIR)/Digits.png -f mono -n Image_Digits -o Image_Digits
+
+tDigitsViewCore.o: Image_Digits.c Image_Digits.h

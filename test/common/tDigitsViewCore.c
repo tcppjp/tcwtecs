@@ -26,6 +26,7 @@
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
 #include "tDigitsViewCore_tecsgen.h"
+#include "Image_Digits.h"
 
 #ifndef E_OK
 #define	E_OK	0		/* success */
