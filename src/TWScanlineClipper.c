@@ -270,7 +270,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
     TWScanlineClipperNode *row = state->firstRow;
     if (skippedLines) {
         assert(row);
-        while (skippedLines > row->row.height) {
+        while (skippedLines >= row->row.height) {
             skippedLines -= row->row.height;
             prevprev = prev;
             prev = row;
@@ -282,7 +282,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
     // Skip a completely clipped row if any (note: there can't be more than one subsequent clipped row)
     assert(row);
     if (!row->row.spanIndexOffset) {
-        if (skippedLines + remainingLines < row->row.height) {
+        if (skippedLines + remainingLines <= row->row.height) {
             return;
         }
         remainingLines -= row->row.height - skippedLines;
@@ -330,9 +330,8 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
             // Out of nodes
             return;
         }
+        assert(remainingLines >= row->row.height);
         remainingLines -= row->row.height;
-
-        prevprev = prev;
 
         next = row->row.next;
         if (!row->row.spanIndexOffset) {
@@ -354,6 +353,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
             }
         }
 
+        prevprev = prev;
         prev = row;
     MergeOccured:
         row = next;
@@ -370,7 +370,7 @@ TWScanlineClipperSubtractClippingRect(TWScanlineClipperState *state, const TWRec
                 prevprev->row.next = NULL;
             } else {
                 // It's also the first row
-                assert(state->firstRow == row);
+                assert(state->firstRow == prev);
                 state->firstRow = NULL;
             }
             state->height -= prev->row.height;
@@ -545,10 +545,17 @@ TWScanlineClipperStartLine(const TWScanlineClipperState *state, TWScanlineClippe
         goto NothingToDraw;
     }
 
+    if (span->span.skip >= inSpanX + inSpanWidth) {
+        //   span:             XXXXX
+        //  input:   IIIIIIIII
+        goto NothingToDraw;
+    }
+
     if (inSpanX > span->span.skip) {
         //   span:      XXXXX
         //  input:        IIIIIIIII ...
-        spanScanState->skip = skipBecauseOfOOR;
+        assert(skipBecauseOfOOR == 0); // there mustn't be a span in the negative X zone
+        spanScanState->skip = 0;
         uint_fast16_t rightEdge = span->span.skip + span->span.width;
         uint_fast16_t inSpanRightEdge = inSpanX + inSpanWidth;
         uint_fast16_t overlap = MIN(rightEdge, inSpanRightEdge) - inSpanX;
@@ -581,7 +588,7 @@ TWScanlineClipperLineAdvance(TWScanlineClipperSpanScanState *spanScanState)
     }
 
     uint_fast16_t remainingDrawnPixels = spanScanState->remainingDrawnPixels;
-    if (span->span.skip > remainingDrawnPixels) {
+    if (span->span.skip >= remainingDrawnPixels) {
         return 0;
     }
 
@@ -592,6 +599,7 @@ TWScanlineClipperLineAdvance(TWScanlineClipperSpanScanState *spanScanState)
         spanScanState->currentSpan = NULL;
     } else {
         remainingDrawnPixels -= span->span.width;
+        spanScanState->width = span->span.width;
         spanScanState->currentSpan = span->span.next;
         spanScanState->remainingDrawnPixels = remainingDrawnPixels;
     }
