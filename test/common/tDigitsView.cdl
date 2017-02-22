@@ -1,0 +1,94 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("TWTecs.cdl");
+import("sStringValueSource.cdl");
+
+celltype tDigitsViewCore {
+    entry sTWPaintEvent ePaintEvent;
+
+    call sTWRectSource cBoundsSource;
+    call sTWDrawingContext cDrawingContext;
+    call sTWViewControl cViewControl;
+
+    call sStringValueSource cTextSource;
+    entry sTWValueSourceCallback eTextSource;
+};
+
+composite tDigitsView {
+    [optional] call sTWSuperviewLink cSuperview;
+    entry sTWSubviewLink eSuperview;
+    call sTWDesktopLink cDesktopLink;
+
+    entry sTWTouchInputSubviewLink eTouchInputSuperview;
+    call sTWTouchInputSuperviewLink cTouchInputSuperview;
+
+    call sTWViewStyleSource cStyleSource;
+    entry sTWValueSourceCallback eStyleSource;
+
+    call sTWRectSource cBoundsSource;
+    entry sTWValueSourceCallback eBoundsSource;
+
+    call sStringValueSource cTextSource;
+    entry sTWValueSourceCallback eTextSource;
+
+    cell tDigitsViewCore Core;
+    cell tTWView View;
+
+    cell tDigitsViewCore Core {
+        cBoundsSource => composite.cBoundsSource;
+        cDrawingContext = View.eDrawingContext;
+        cViewControl = View.eControl;
+
+        cTextSource => composite.cTextSource;
+    };
+
+    cell tTWView View {
+        cSuperview => composite.cSuperview;
+        cDesktopLink => composite.cDesktopLink;
+
+        cBoundsSource => composite.cBoundsSource;
+        cStyleSource => composite.cStyleSource;
+
+        cPaintEvent = Core.ePaintEvent;
+    };
+
+    cell tTWTouchInputElement TouchInputElement {
+        cSuperview => composite.cTouchInputSuperview;
+
+        cBoundsSource => composite.cBoundsSource;
+        cStyleSource => composite.cStyleSource;
+    };
+
+    cell tTWValueSourceCallbackSplitter BoundsSplitter {
+        cCallback[0] = View.eBoundsSource;
+        cCallback[1] = TouchInputElement.eBoundsSource;
+    };
+
+    cell tTWValueSourceCallbackSplitter StyleSplitter {
+        cCallback[0] = View.eStyleSource;
+        cCallback[1] = TouchInputElement.eStyleSource;
+    };
+
+    composite.eSuperview => View.eSuperview;
+    composite.eStyleSource => BoundsSplitter.eCallback;
+    composite.eBoundsSource => StyleSplitter.eCallback;
+    composite.eTouchInputSuperview => TouchInputElement.eSuperview;
+    composite.eTextSource => Core.eTextSource;
+};

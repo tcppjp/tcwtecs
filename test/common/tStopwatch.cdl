@@ -1,0 +1,80 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("TWTecs.cdl");
+import("sStopwatchControl.cdl");
+import("sStringValueSource.cdl");
+
+celltype tStopwatchCore
+{
+    [optional] call sTWValueSourceCallback cText[];
+    entry sStringValueSource eText;
+
+    entry sStopwatchControl eStopwatch;
+
+    call sTWTimerControl   cTimer;
+    entry sTWDispatchTarget eTimerTick;
+
+    call sTWDispatcherControl cDispatcher;
+
+    attr {
+        TWDuration timerInterval;
+    };
+
+    var {
+        TWDuration displayedTime = 0;
+        TWTimePoint baseTime;
+        uint8_t flags = 0;
+    };
+};
+
+composite tStopwatch
+{
+    call sTWTimerManagerLink cTimerManager;
+    call sTWDispatcherControl cDispatcher;
+
+    [optional] call sTWValueSourceCallback cText[];
+    entry sStringValueSource eText;
+
+    entry sStopwatchControl eStopwatch;
+
+    attr {
+        TWDuration timerInterval = 10;
+    };
+
+    cell tTWTimer Timer
+    {
+        cTimerManager => composite.cTimerManager;
+    };
+
+    cell tStopwatchCore Core
+    {
+        cText => composite.cText;
+
+        cTimer = Timer.eTimer;
+        eTimerTick <= Timer.cTarget;
+
+        cDispatcher => composite.cDispatcher;
+
+        timerInterval = composite.timerInterval;
+    };
+
+    composite.eText => Core.eText;
+    composite.eStopwatch => Core.eStopwatch;
+};

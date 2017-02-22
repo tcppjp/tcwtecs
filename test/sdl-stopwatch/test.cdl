@@ -1,0 +1,218 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ *  This CDL application is well-organized using composite celltypes, but
+ *  doesn't work yet with the latest version (at the time of writing) of tecsgen.
+ */
+
+import("TWTecs.cdl");
+
+import("sStopwatchControl.cdl");
+import("tDigitsView.cdl");
+import("tSimpleButton.cdl");
+import("tStopwatch.cdl");
+
+cell tTWSDLDispatcher Dispatcher {
+};
+
+cell tTWTimerManager TimerManager {
+	cDispatcherLink = Dispatcher.eDispatcherLink;
+	eTimerManager <= Dispatcher.cTimerManager;
+};
+
+cell tTWKeyboardInputManager KeyboardInputManager {
+};
+
+cell tTWTouchInputManager TouchInputManager {
+	maxNumTouches = 1;
+	cElement[0] = TouchInputManager.eNullElementLink;
+};
+
+cell tTWSDLGraphicsDevice SDL {
+	width = 280;
+	height = 50;
+	title = "TCW for TECS: Stopwatch Example";
+	windowFlags = C_EXP("0");
+
+	eSDLEvent <= Dispatcher.cSDLEvent[0];
+
+	cKeyboardInputDriverEvent = KeyboardInputManager.eDriverEvent;
+	cTouchInputDriverEvent = TouchInputManager.eDriverEvent;
+};
+
+cell tTWDesktop Desktop {
+	cGraphicsDevice = SDL.eGraphicsDevice;
+	eGraphicsDevice <= SDL.cGraphicsDevice;
+	cTimerManager = TimerManager.eTimerManager;
+};
+
+celltype tMainWindowCore {
+	entry sTWPaintEvent ePaintEvent;
+	call sTWDrawingContext cDC;
+
+	entry sAction eStartStopButtonActivated;
+	entry sAction eResetLapButtonActivated;
+
+	call sStopwatchControl cStopwatch;
+};
+
+composite tMainWindow {
+	[optional] call sTWSuperviewLink cSuperview;
+	entry sTWSubviewLink eSuperview;
+
+	call sTWDesktopLink cDesktopLink;
+	call sTWTimerManagerLink cTimerManager;
+	call sTWDispatcherControl cDispatcher;
+
+	entry sTWTouchInputSubviewLink eTouchInputSuperview;
+	call sTWTouchInputSuperviewLink cTouchInputSuperview;
+
+	call sTWKeyboardInputManagerControl cKeyboardInputManager;
+
+	cell tSimpleButton StartStopButton;
+	cell tSimpleButton ResetLapButton;
+	cell tDigitsView DigitsView;
+
+	cell tMainWindowCore Core;
+
+	cell tStopwatch Stopwatch;
+
+	cell tTWStaticRectSource View_Bounds {
+		x = 0; y = 0; w = 280; h = 50;
+	};
+	cell tTWStaticViewStyleSource View_Style {
+		value = C_EXP("TWViewStyleVisible");
+	};
+
+	cell tTWView View {
+		cSuperview => composite.cSuperview;
+		cDesktopLink => composite.cDesktopLink;
+
+		cBoundsSource = View_Bounds.eSource;
+		cStyleSource = View_Style.eSource;
+
+		// TODO: コールバック結合で記述したい
+		cSubview[0] = StartStopButton.eSuperview;
+		cSubview[1] = ResetLapButton.eSuperview;
+		cSubview[2] = DigitsView.eSuperview;
+
+		cPaintEvent = Core.ePaintEvent;
+	};
+	composite.eSuperview => View.eSuperview;
+
+	cell tTWTouchInputElement TouchInputElement {
+		cSubview[0] = StartStopButton.eTouchInputSuperview;
+		cSubview[1] = ResetLapButton.eTouchInputSuperview;
+		cSubview[2] = DigitsView.eTouchInputSuperview;
+
+		cSuperview => composite.cTouchInputSuperview;
+
+		cBoundsSource = View_Bounds.eSource;
+		cStyleSource = View_Style.eSource;
+	};
+	composite.eTouchInputSuperview => TouchInputElement.eSuperview;
+
+	cell tMainWindowCore Core {
+		cDC = View.eDrawingContext;
+		cStopwatch = Stopwatch.eStopwatch;
+	};
+
+	cell tTWStaticViewStyleSource Subviews_Style {
+		value = C_EXP("TWViewStyleVisible");
+	};
+
+	cell tTWStaticRectSource StartStopButton_Bounds {
+		x = 190; y = 20; w = 30; h = 30;
+	};
+	cell tSimpleButton StartStopButton {
+		cSuperview = View.eSubview[0];
+		cTouchInputSuperview = TouchInputElement.eSubview[0];
+		cDesktopLink => composite.cDesktopLink;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
+
+		cBoundsSource = StartStopButton_Bounds.eSource;
+		cStyleSource = Subviews_Style.eSource;
+
+		cAction = Core.eStartStopButtonActivated;
+	};
+
+	cell tTWStaticRectSource ResetLapButton_Bounds {
+		x = 230; y = 20; w = 30; h = 30;
+	};
+	cell tSimpleButton ResetLapButton {
+		cSuperview = View.eSubview[1];
+		cTouchInputSuperview = TouchInputElement.eSubview[1];
+		cDesktopLink => composite.cDesktopLink;
+		cKeyboardInputManager => composite.cKeyboardInputManager;
+
+		cBoundsSource = ResetLapButton_Bounds.eSource;
+		cStyleSource = Subviews_Style.eSource;
+
+		cAction = Core.eResetLapButtonActivated;
+	};
+
+	cell tTWStaticRectSource DigitsView_Bounds {
+		x = 20; y = 20; w = 160; h = 30;
+	};
+	cell tDigitsView DigitsView {
+		cSuperview = View.eSubview[2];
+		cTouchInputSuperview = TouchInputElement.eSubview[2];
+		cDesktopLink => composite.cDesktopLink;
+
+		cBoundsSource = DigitsView_Bounds.eSource;
+		cStyleSource = Subviews_Style.eSource;
+		cTextSource = Stopwatch.eText;
+		eTextSource <= Stopwatch.cText[0];
+	};
+
+	cell tStopwatch Stopwatch {
+		cTimerManager => composite.cTimerManager;
+		cDispatcher => composite.cDispatcher;
+	};
+};
+
+cell tMainWindow MainWindow {
+	cSuperview = Desktop.eSubview;
+	eSuperview <= Desktop.cSubview;
+
+	cDesktopLink = Desktop.eDesktopLink;
+	cKeyboardInputManager = KeyboardInputManager.eControl;
+
+	cTouchInputSuperview = TouchInputManager.eSubview;
+	eTouchInputSuperview <= TouchInputManager.cSubview;
+
+	cDispatcher = Dispatcher.eDispatcher;
+	cTimerManager = TimerManager.eTimerManager;
+};
+
+[active, singleton]
+celltype tTestApp {
+	call sTWSDLGraphicsDeviceControl cSDL;
+	call sTWSDLDispatcherControl cSDLDispatcher;
+
+	call sTWDesktopControl cDesktop;
+};
+
+cell tTestApp App {
+	cSDL = SDL.eControl;
+	cSDLDispatcher = Dispatcher.eSDLDispatcher;
+
+	cDesktop = Desktop.eDesktop;
+};
