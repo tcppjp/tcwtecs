@@ -17,15 +17,19 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import("tTWView.cdl");
+// FIXME: SDL関連のものをここに含めるのは良くないのではかろうか?
+
+import("tTWDeferredDispatch.cdl");
 import("tTWDesktop.cdl");
-import("tTWTimerManager.cdl");
-import("tTWSDLGraphicsDevice.cdl");
-import("tTWSDLDispatcher.cdl");
 import("tTWKeyboardInputManager.cdl");
-import("tTWTouchInputManager.cdl");
-import("tTWTouchInputElement.cdl");
+import("tTWSDLDispatcher.cdl");
+import("tTWSDLGraphicsDevice.cdl");
 import("tTWStaticRectSource.cdl");
 import("tTWStaticViewStyleSource.cdl");
+import("tTWTimer.cdl");
+import("tTWTimerManager.cdl");
+import("tTWTouchInputElement.cdl");
+import("tTWTouchInputManager.cdl");
 import("tTWValueSourceCallbackSplitter.cdl");
 import("tTWValueSourceCallbackTerminator.cdl");
+import("tTWView.cdl");
