@@ -120,9 +120,13 @@ eStopwatch_reset(CELLIDX idx)
 		cTimer_clear();
 	}
 
-	cText_changing();
+	for (int_t i = 0; i < NCP_cText; ++i) {
+		cText_changing(i);
+	}
 	VAR_displayedTime = 0;
-	cText_changed();
+	for (int_t i = 0; i < NCP_cText; ++i) {
+		cText_changed(i);
+	}
 }
 
 /* #[<ENTRY_FUNC>]# eStopwatch_isRunning
@@ -154,9 +158,13 @@ eTimerTick_main(CELLIDX idx, intptr_t param)
 	CELLCB *p_cellcb = GET_CELLCB(idx);
 	(void) param;
 
-	cText_changing();
+	for (int_t i = 0; i < NCP_cText; ++i) {
+		cText_changing(i);
+	}
 	VAR_displayedTime = cDispatcher_getTime() - VAR_baseTime;
-	cText_changed();
+	for (int_t i = 0; i < NCP_cText; ++i) {
+		cText_changed(i);
+	}
 }
 
 /* #[<POSTAMBLE>]#
