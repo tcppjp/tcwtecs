@@ -15,12 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
 
-TCWDIR := ../../..
-SRCDIR := ..
-COMMONDIR := $(SRCDIR)/../common
-GENDIR := ./gen
+IMAGEDIR := $(COMMONDIR)/images
 
-TARGET := test
-MAINCDL := $(SRCDIR)/test.cdl
+MAKETCWIMAGE := $(TCWDIR)/tools/maketcwimage.rb
 
-include $(COMMONDIR)/Makefile.sdl2
+Image_Digits.c Image_Digits.h: $(IMAGEDIR)/Digits.png $(MAKETCWIMAGE)
+	$(MAKETCWIMAGE) -i $(IMAGEDIR)/Digits.png -f mono -n Image_Digits -o Image_Digits

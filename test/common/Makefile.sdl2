@@ -1,0 +1,69 @@
+# Copyright (C) 2017 Tomoaki Kawada
+#
+# This file is part of tcwtecs.
+#
+# tcwtecs is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# tcwtecs is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+
+
+TCWDIR := ../../..
+SRCDIR := ..
+COMMONDIR := $(SRCDIR)/../common
+GENDIR := ./gen
+
+TECSGEN := tecsgen
+
+CC = clang
+CXX = clang++
+LD = clang++
+
+INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR)
+INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR)
+
+CFLAGS = $(INCLUDES) -g "-DInline=static inline"
+CXXFLAGS = $(CFLAGS) -std=c++1z
+
+# FIXME: this needs to be customized for other platforms
+LDFLAGS = -framework SDL2 -framework Cocoa
+
+# default targets
+default:        all
+all:            $(TARGET)
+
+# make.inc defines the list of non-TECS object files as $(TCWTECS_OBJS)
+include $(TCWDIR)/src/Makefile.tcw
+
+# common rules
+include $(COMMONDIR)/Makefile.common
+
+# source file directories
+vpath %.c $(TCWDIR)/src
+vpath %.c $(GENDIR)
+vpath %.c $(SRCDIR)
+vpath %.c $(COMMONDIR)
+vpath %.cpp $(TCWDIR)/src
+
+clean:
+	rm -rf gen $(OBJS)
+
+# TECS interface code generation
+tecs:
+	$(TECSGEN) $(INCLUDES) $(INCLUDES_TECS) $(MAINCDL)
+
+-include gen/Makefile.tecsgen
+
+OBJS = $(TCWTECS_OBJS) $(TECS_COBJS)
+
+$(TARGET):      $(OBJS)
+	$(LD) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
