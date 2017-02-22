@@ -256,7 +256,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, uint32_t numByte
 	pixels += out_x1 + out_y1 * tgt_w;
 
 	TWScanlineClipperSpanScanState spanScanner;
-	if (!TWScanlineClipperMoveToLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner, out_x1, out_y2 - out_y1)) {
+	if (!TWScanlineClipperMoveToLine(&VAR_scanlineClipper, &VAR_scanlineClipperLineScanner, out_y1, out_y2 - out_y1)) {
 		return;
 	}
 
