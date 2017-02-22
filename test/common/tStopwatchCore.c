@@ -153,7 +153,10 @@ eTimerTick_main(CELLIDX idx, intptr_t param)
 {
 	CELLCB *p_cellcb = GET_CELLCB(idx);
 	(void) param;
-	// TODO: eTimerTick_main
+
+	cText_changing();
+	VAR_displayedTime = cDispatcher_getTime() - VAR_baseTime;
+	cText_changed();
 }
 
 /* #[<POSTAMBLE>]#
