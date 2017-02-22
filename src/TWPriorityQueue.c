@@ -158,7 +158,10 @@ void TWPQRemoveNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, i
         if (node->parent) {
             assert(node->parent->children[0] == node || node->parent->children[1] == node);
             node->parent->children[node->parent->children[1] == node] = NULL;
-        }
+        } else {
+			assert(header->root == node);
+			header->root = NULL;
+		}
         header->numNodes = numNodes - 1;
         return;
     }
