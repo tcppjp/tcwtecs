@@ -5,6 +5,10 @@ gen
 Image_*.c
 Image_*.h
 
+# Xcode project
+DerivedData
+*.xcodeproj
+
 # tecsmerge backup
 *.c_1
 *.c_2
