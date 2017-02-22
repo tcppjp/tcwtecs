@@ -83,7 +83,11 @@ void
 eStartStopButtonActivated_activated(CELLIDX idx)
 {
     CELLCB  *p_cellcb = GET_CELLCB(idx);
-
+    if (cStopwatch_isRunning()) {
+        cStopwatch_stop();
+    } else {
+        cStopwatch_start();
+    }
 }
 
 /* #[<ENTRY_PORT>]# eResetLapButtonActivated
@@ -102,6 +106,8 @@ eResetLapButtonActivated_activated(CELLIDX idx)
 {
     CELLCB  *p_cellcb = GET_CELLCB(idx);
 
+    cStopwatch_stop();
+    cStopwatch_reset();
 }
 
 /* #[<POSTAMBLE>]#

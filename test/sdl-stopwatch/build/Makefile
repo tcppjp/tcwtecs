@@ -23,4 +23,6 @@ GENDIR := ./gen
 TARGET := test
 MAINCDL := $(SRCDIR)/test.cdl
 
+OBJS := Image_Digits.o
+
 include $(COMMONDIR)/Makefile.sdl2

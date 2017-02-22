@@ -46,8 +46,8 @@ cell tTWTouchInputManager TouchInputManager {
 };
 
 cell tTWSDLGraphicsDevice SDL {
-	width = 280;
-	height = 50;
+	width = 300;
+	height = 70;
 	title = "TCW for TECS: Stopwatch Example";
 	windowFlags = C_EXP("0");
 
@@ -95,7 +95,7 @@ composite tMainWindow {
 	cell tStopwatch Stopwatch;
 
 	cell tTWStaticRectSource View_Bounds {
-		x = 0; y = 0; w = 280; h = 50;
+		x = 0; y = 0; w = 300; h = 70;
 	};
 	cell tTWStaticViewStyleSource View_Style {
 		value = C_EXP("TWViewStyleVisible");
@@ -139,7 +139,7 @@ composite tMainWindow {
 	};
 
 	cell tTWStaticRectSource StartStopButton_Bounds {
-		x = 190; y = 20; w = 30; h = 30;
+		x = 210; y = 20; w = 30; h = 30;
 	};
 	cell tSimpleButton StartStopButton {
 		cSuperview = View.eSubview[0];
@@ -154,7 +154,7 @@ composite tMainWindow {
 	};
 
 	cell tTWStaticRectSource ResetLapButton_Bounds {
-		x = 230; y = 20; w = 30; h = 30;
+		x = 250; y = 20; w = 30; h = 30;
 	};
 	cell tSimpleButton ResetLapButton {
 		cSuperview = View.eSubview[1];
@@ -169,7 +169,7 @@ composite tMainWindow {
 	};
 
 	cell tTWStaticRectSource DigitsView_Bounds {
-		x = 20; y = 20; w = 160; h = 30;
+		x = 20; y = 18; w = 180; h = 34;
 	};
 	cell tDigitsView DigitsView {
 		cSuperview = View.eSubview[2];

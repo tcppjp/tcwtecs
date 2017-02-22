@@ -62,7 +62,7 @@ tecs:
 
 -include gen/Makefile.tecsgen
 
-OBJS = $(TCWTECS_OBJS) $(TECS_COBJS)
+OBJS := $(OBJS) $(TCWTECS_OBJS) $(TECS_COBJS)
 
 $(TARGET):      $(OBJS)
 	$(LD) $(OBJS) -o $(TARGET) $(LDFLAGS)

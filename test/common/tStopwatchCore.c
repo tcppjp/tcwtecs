@@ -56,7 +56,31 @@ void
 eText_get(CELLIDX idx, char* outString, uint16_t bufferSize)
 {
 	CELLCB *p_cellcb = GET_CELLCB(idx);
-	// TODO: eText_get
+
+	uint32_t tenMillsecs = VAR_displayedTime / 10;
+	uint32_t minutes = tenMillsecs / 6000;
+	tenMillsecs -= minutes * 6000;
+	uint32_t hours = minutes / 60;
+	minutes -= hours * 60;
+	hours %= 100;
+	// 00:00:00.00
+
+	if (bufferSize < 12) {
+		return;
+	}
+
+	outString[0] = '0' + (hours / 10);
+	outString[1] = '0' + (hours % 10);
+	outString[2] =  ':';
+	outString[3] = '0' + (minutes / 10);
+	outString[4] = '0' + (minutes % 10);
+	outString[5] =  ':';
+	outString[6] = '0' + (tenMillsecs / 1000);
+	outString[7] = '0' + ((tenMillsecs / 100) % 10);
+	outString[8] = '.';
+	outString[9] = '0' + ((tenMillsecs / 10) % 10);
+	outString[10] = '0' + (tenMillsecs % 10);
+	outString[11] = 0;
 }
 
 /* #[<ENTRY_PORT>]# eStopwatch

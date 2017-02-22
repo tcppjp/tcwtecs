@@ -25,6 +25,7 @@
  * #[</PREAMBLE>]# */
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
+#include <stdlib.h>
 #include "tDigitsViewCore_tecsgen.h"
 #include "Image_Digits.h"
 
@@ -32,6 +33,44 @@
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
 #endif
+
+#define kGlyphHeight Image_Digits_Height
+static const struct DigitsViewGlyphInfo {
+	uint8_t x, w;
+} glyphs[] = {
+	{0, 18}, // 0
+	{18, 18}, // 1
+	{36, 18}, // 2
+	{54, 18}, // 3
+	{72, 18}, // 4
+	{90, 18}, // 5
+	{108, 18}, // 6
+	{126, 18}, // 7
+	{144, 18}, // 8
+	{162, 18}, // 9
+	{181, 8}, // .
+	{190, 9}, // :
+};
+
+static const struct DigitsViewGlyphInfo *
+FindGlyph(char c)
+{
+	switch (c) {
+		case '0': return &glyphs[0];
+		case '1': return &glyphs[1];
+		case '2': return &glyphs[2];
+		case '3': return &glyphs[3];
+		case '4': return &glyphs[4];
+		case '5': return &glyphs[5];
+		case '6': return &glyphs[6];
+		case '7': return &glyphs[7];
+		case '8': return &glyphs[8];
+		case '9': return &glyphs[9];
+		case '.': return &glyphs[10];
+		case ':': return &glyphs[11];
+		default: return NULL;
+	}
+}
 
 /* entry port function #_TEPF_# */
 /* #[<ENTRY_PORT>]# ePaintEvent
@@ -50,7 +89,59 @@ ePaintEvent_paint(CELLIDX idx)
 {
 	CELLCB *p_cellcb = GET_CELLCB(idx);
 
-	// TODO: ePaintEvent_paint
+	TWRect bounds;
+	cBoundsSource_get(&bounds);
+
+	int w = bounds.w, h = bounds.h;
+	TWRect r;
+	TWPoint p;
+
+	TWColor shade1 = TWMakeColor(128, 128, 128);
+	TWColor shade3 = TWMakeColor(255, 255, 255);
+
+	TWSetRect(&r, 0, 0, w, 1);
+	cDrawingContext_fillRect(shade1, &r);
+
+	TWSetRect(&r, 0, 1, 1, h - 2);
+	cDrawingContext_fillRect(shade1, &r);
+
+	TWSetRect(&r, 0, h - 1, w, 1);
+	cDrawingContext_fillRect(shade3, &r);
+
+	TWSetRect(&r, w - 1, 1, 1, h - 2);
+	cDrawingContext_fillRect(shade3, &r);
+
+	// Draw text
+	char str[32];
+	cTextSource_get(str, 32);
+	str[31] = 0;
+
+	int textY = (h - kGlyphHeight) >> 1;
+
+	TWBitmapInfo info;
+	info.header = Image_Digits_InfoHeader;
+	info.mono.palette[0] = TWMakeColor(0, 0, 0);
+	info.mono.palette[1] = TWMakeColor(255, 255, 0);
+
+	int x = 1;
+	for (const char *c = str; *c; ++c) {
+		const struct DigitsViewGlyphInfo *glyph = FindGlyph(*c);
+		if (glyph) {
+			TWSetRect(&r, glyph->x, 0, glyph->w, kGlyphHeight);
+			p = TWMakePoint(x, textY);
+			cDrawingContext_drawBitmap(Image_Digits_Data, Image_Digits_Size,
+				&info, sizeof(info), &r, &p);
+			x += glyph->w;
+		}
+	}
+
+	// Fill margin
+	TWSetRect(&r, x, 1, w - x - 1, h - 2);
+	cDrawingContext_fillRect(info.mono.palette[0], &r);
+	TWSetRect(&r, 1, 1, w - 2, textY - 1);
+	cDrawingContext_fillRect(info.mono.palette[0], &r);
+	TWSetRect(&r, 1, textY + kGlyphHeight, w - 2, h - 1 - textY - kGlyphHeight);
+	cDrawingContext_fillRect(info.mono.palette[0], &r);
 }
 
 /* #[<ENTRY_PORT>]# eTextSource
