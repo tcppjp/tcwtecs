@@ -25,7 +25,7 @@ eTimer_setTimeout(CELLIDX idx, TWDuration duration, intptr_t param)
     TWTimerDescriptor *timer = &VAR_descriptor;
 
     if (timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending)) {
-        eTimer_clear();
+        eTimer_clear(idx);
     }
 
     timer->param = param;
@@ -42,7 +42,7 @@ eTimer_setInterval(CELLIDX idx, TWDuration interval, intptr_t param)
     TWTimerDescriptor *timer = &VAR_descriptor;
 
     if (timer->flags & (kTWTimerFlagsActive | kTWTimerFlagsPending)) {
-        eTimer_clear();
+        eTimer_clear(idx);
     }
 
     timer->param = param;
