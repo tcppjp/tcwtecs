@@ -7,6 +7,7 @@
 #pragma once
 
 #include "types.h"
+#include "colors.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +32,22 @@ typedef uint8_t TWPixelFormat;
 #define TWPixelFormat16bppRGB565    ((TWPixelFormat)3)
 
 size_t TWComputeBitmapStride(TWPixelFormat format, size_t width);
+
+typedef struct tagTWBitmapInfoHeader {
+    uint16_t width, height;
+    TWPixelFormat format;
+} TWBitmapInfoHeader;
+
+typedef union tagTWBitmapInfo
+{
+    TWBitmapInfoHeader header;
+
+    /** Only used for TWPixelFormat1bppMonotone. */
+    struct {
+        TWBitmapInfoHeader header;
+        TWColor palette[2];
+    } mono;
+} TWBitmapInfo;
 
 #ifdef __cplusplus
 }

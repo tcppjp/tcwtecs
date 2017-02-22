@@ -33,14 +33,9 @@
  *       subscript:  0...(NCP_cSubview-1)
  * call port: cDesktopLink signature: sTWDesktopLink context:task
  *   void           cDesktopLink_fillRect( TWColor color, const TWRect* rect );
- *   void           cDesktopLink_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
+ *   void           cDesktopLink_drawBitmap( const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc );
  *   void           cDesktopLink_preparePaint( const TWRect* globalClipRect, const TWPoint* globalLoc );
  *   void           cDesktopLink_subtractClippingRect( const TWRect* globalClipRect );
- * call port: cMouseEvent signature: sTWMouseEvent context:task optional:true
- *   bool_t     is_cMouseEvent_joined()                     check if joined
- *   void           cMouseEvent_mouseDown( TWPoint point, uint8_t button );
- *   void           cMouseEvent_mouseMove( TWPoint point );
- *   void           cMouseEvent_mouseUp( TWPoint point, uint8_t button );
  * call port: cPaintEvent signature: sTWPaintEvent context:task optional:true
  *   bool_t     is_cPaintEvent_joined()                     check if joined
  *   void           cPaintEvent_paint( );
@@ -299,11 +294,11 @@ eDrawingContext_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
-eDrawingContext_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor)
+eDrawingContext_drawBitmap(CELLIDX idx, const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
-	cDesktopLink_drawBitmap(data, format, bitmapSize, numBytes,
-		inRect, outLoc, monoColor);
+	cDesktopLink_drawBitmap(data, numBytes, info, infoSize,
+		inRect, outLoc);
 }
 
 /* #[<ENTRY_PORT>]# eStyleSource

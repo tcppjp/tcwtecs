@@ -187,7 +187,7 @@ eGraphicsDeviceOutput_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
  * oneway:       true
  * #[</ENTRY_FUNC>]# */
 void
-eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor)
+eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 
@@ -195,20 +195,26 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 	uint16_t tgt_w, tgt_h;
 	cRenderTargetBitmapSource_get((void **)&pixels, NULL, &tgt_w, &tgt_h);
 
-	int src_w = bitmapSize->w, src_h = bitmapSize->h;
+	assert(info);
+	assert(data);
+	assert(infoSize >= sizeof(info->header));
 
-	if (src_w <= 0 || src_h <= 0) {
-		assert(0); // TODO: error report
-		return;
+	TWPixelFormat format = info->header.format;
+
+	switch (format) {
+		case TWPixelFormat1bppMonotone:
+			assert(infoSize >= sizeof(info->mono));
+			break;
+		default:
+			break;
 	}
+
+	int src_w = info->header.width, src_h = info->header.height;
 
 	// size check
 	size_t stride = TWComputeBitmapStride(format, src_w);
 	size_t real_size = stride * src_h; // TODO: overflow check
-	if (numBytes < real_size) {
-		assert(0); // TODO: error report
-		return;
-	}
+	assert(numBytes >= real_size);
 
 	// perform clipping
 	int in_x1 = inRect->x, in_y1 = inRect->y;
@@ -256,7 +262,8 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 
 	switch (format) {
 		case TWPixelFormat1bppMonotone: {
-			uint32_t pixel = TWColorToRGBX32(monoColor);
+			uint32_t pixel1 = TWColorToRGBX32(info->mono.palette[0]);
+			uint32_t pixel2 = TWColorToRGBX32(info->mono.palette[1]);
 			data += in_x1 >> 3;
 
 			do {
@@ -289,9 +296,7 @@ eGraphicsDeviceOutput_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat fo
 							cur_bit = 0;
 							cur_byte = *(cur_scanline++);
 						}
-						if (cur_byte & 1) {
-							*pixels2 = pixel;
-						}
+						*pixels2 = (cur_byte & 1) ? pixel2 : pixel1;
 						++cur_bit; cur_byte >>= 1; ++pixels2;
 					}
 				} while (TWScanlineClipperLineAdvance(&spanScanner));

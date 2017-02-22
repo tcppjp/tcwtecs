@@ -27,12 +27,11 @@ signature sTWDesktopLink
 	void fillRect([in] TWColor color, [in] const TWRect *rect);
 	void drawBitmap(
 		[in, size_is(numBytes)] const char *data,
-		[in] TWPixelFormat format,
-		[in] const TWSize *bitmapSize,
-		[in] uint32_t numBytes,
+        [in] uint32_t numBytes,
+        [in] const TWBitmapInfo *info,
+        [in] uint16_t infoSize,
 		[in] const TWRect *inRect,
-		[in] const TWPoint *outLoc,
-		[in] TWColor monoColor);
+		[in] const TWPoint *outLoc);
 	void preparePaint([in] const TWRect *globalClipRect, [in] const TWPoint *globalLoc);
 	void subtractClippingRect([in] const TWRect *globalClipRect);
 };

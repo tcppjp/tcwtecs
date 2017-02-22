@@ -36,7 +36,7 @@
  *   void           cGraphicsDevice_subtractClippingRect( const TWRect* rect );
  *   void           cGraphicsDevice_setScissorRect( const TWRect* rect );
  *   void           cGraphicsDevice_fillRect( TWColor color, const TWRect* rect );
- *   void           cGraphicsDevice_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
+ *   void           cGraphicsDevice_drawBitmap( const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc );
  *   void           cGraphicsDevice_update( const TWRect* rect );
  * call port: cRepaintDeferredDispatch signature: sTWDeferredDispatchControl context:task
  *   uint8_t        cRepaintDeferredDispatch_start( intptr_t param );
@@ -207,14 +207,14 @@ eDesktopLink_fillRect(CELLIDX idx, TWColor color, const TWRect* rect)
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eDesktopLink_drawBitmap(CELLIDX idx, const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor)
+eDesktopLink_drawBitmap(CELLIDX idx, const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	TWPoint globLoc = *outLoc;
 	globLoc.x += VAR_paintOffset.x;
 	globLoc.y += VAR_paintOffset.y;
-	cGraphicsDevice_drawBitmap(data, format, bitmapSize, numBytes,
-		inRect, &globLoc, monoColor);
+	cGraphicsDevice_drawBitmap(data, numBytes, info, infoSize,
+		inRect, &globLoc);
 }
 
 /* #[<ENTRY_FUNC>]# eDesktopLink_preparePaint

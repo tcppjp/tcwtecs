@@ -19,10 +19,6 @@
 
 import("TWTypes.cdl");
 
-// import_C("tecsui/colors.h");
-// import_C("tecsui/geometry.h");
-// import_C("tecsui/bitmap.h");
-
 signature sTWGraphicsDeviceOutput
 {
 	void getScreenSize([out] TWSize *outSize);
@@ -35,11 +31,10 @@ signature sTWGraphicsDeviceOutput
 	[oneway] void fillRect([in] TWColor color, [in] const TWRect *rect);
 	[oneway] void drawBitmap(
 		[in, size_is(numBytes)] const char *data,
-		[in] TWPixelFormat format,
-		[in] const TWSize *bitmapSize,
-		[in] uint32_t numBytes,
+        [in] uint32_t numBytes,
+        [in] const TWBitmapInfo *info,
+        [in] uint16_t infoSize,
 		[in] const TWRect *inRect,
-		[in] const TWPoint *outLoc,
-		[in] TWColor monoColor);
+		[in] const TWPoint *outLoc);
 	[oneway] void update([in] const TWRect *rect);
 };
