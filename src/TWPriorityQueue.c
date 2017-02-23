@@ -35,9 +35,11 @@ static uint_fast8_t TWULog2(uint32_t value)
 
 // WARNING! This code is NOT tested at all!
 
-static void TWPQSwapNodeAndParent(TWPQNode *node, TWPQNode *parent)
+static void TWPQSwapNodeAndParent(TWPQHeader *header, TWPQNode *node, TWPQNode *parent)
 {
     assert(node);
+    assert(parent);
+    assert(node != parent);
     assert(node->parent == parent);
     assert(parent->children[0] == node || parent->children[1] == node);
 
@@ -63,6 +65,14 @@ static void TWPQSwapNodeAndParent(TWPQNode *node, TWPQNode *parent)
     node->children[i] = parent;
     if (t1) {
         t1->parent = parent;
+    }
+
+    if (node->parent) {
+		assert(node->parent->children[0] == parent || node->parent->children[1] == parent);
+        node->parent->children[node->parent->children[1] == parent] = node;
+    } else {
+        assert(header->root == parent);
+        header->root = node;
     }
 }
 
@@ -120,7 +130,7 @@ void TWPQInsertNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, i
         }
 
         // Swap it with its parent node
-        TWPQSwapNodeAndParent(node, parent);
+        TWPQSwapNodeAndParent(header, node, parent);
     }
 
     header->numNodes = numNodes;
@@ -172,21 +182,38 @@ void TWPQRemoveNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, i
     t2 = node->parent = last->parent;
     t3 = last->parent = t1;
 
-    t1 = last->children[0] = node->children[0];
-    if (t1) {
-        t1->parent = last;
+    if (node->children[0] == last || node->children[1] == last) {
+        int i = node->children[1] == last;
+        last->children[i] = NULL;
+
+        t1 = last->children[1 - i] = node->children[1 - i];
+        if (t1) {
+            t1->parent = last;
+        }
+    } else {
+
+        t1 = last->children[0] = node->children[0];
+        if (t1) {
+            t1->parent = last;
+        }
+
+        t1 = last->children[1] = node->children[1];
+        if (t1) {
+            t1->parent = last;
+        }
+
+        if (t2) {
+            assert(t2->children[0] == last || t2->children[1] == last);
+            t2->children[t2->children[1] == last] = NULL; // delete
+        }
     }
 
-    t1 = last->children[1] = node->children[1];
-    if (t1) {
-        t1->parent = last;
-    }
-
-    if (t2) {
-        t2->children[t2->children[1] == node] = NULL; // delete
-    }
     if (t3) {
-        t3->children[t3->children[1] == last] = last;
+        assert(t3->children[0] == node || t3->children[1] == node);
+        t3->children[t3->children[1] == node] = last;
+    } else {
+        assert(header->root == node);
+        header->root = last;
     }
 
     // Restore the heap property
@@ -195,8 +222,22 @@ void TWPQRemoveNode(TWPQHeader *header, TWPQNode *node, TWPQComparer comparer, i
             break;
         }
 
+        TWPQNode *smallest = last;
+
+        if (comparer(last->children[0], smallest, param) < 0) {
+            smallest = last->children[0];
+        }
+        if (last->children[1] && comparer(last->children[1], smallest, param) < 0) {
+            smallest = last->children[1];
+        }
+
+        if (smallest == last) {
+            break;
+        }
+
         // Swap with the smaller child
-        TWPQSwapNodeAndParent(last->children[last->children[1] &&
-            comparer(last->children[0], last->children[1], param) > 0], last);
+        TWPQSwapNodeAndParent(header, smallest, last);
     }
+
+    header->numNodes = numNodes - 1;
 }

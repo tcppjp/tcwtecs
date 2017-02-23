@@ -151,6 +151,7 @@ eTimerManager_registerDeferredDispatch(CELLIDX idx, TWDeferredDispatchDescriptor
         ret = 0;
         goto end;
     }
+    dd->param = param;
     TWDLLPushBackNode(&VAR_deferredDispatchQueue, &dd->node);
 
     cDispatcherLink_startDeferredDispatch();
