@@ -18,6 +18,8 @@
  */
 
 import("TWTecs.cdl");
+import("tTWSDLDispatcher.cdl");
+import("tTWSDLGraphicsDevice.cdl");
 
 import("tSimpleButton.cdl");
 import("tSDLApp.cdl");

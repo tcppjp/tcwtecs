@@ -15,50 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
 
+TARGETNAME := sdl2
+
 TECSGEN := tecsgen
 
 CC = clang
 CXX = clang++
 LD = clang++
 
-INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I$(COMMONDIR)/sdl2 -I.
-INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR) -I$(COMMONDIR)/sdl2
-
-CFLAGS = $(INCLUDES) -g "-DInline=static inline"
-CXXFLAGS = $(CFLAGS) -std=c++1z
-
 # FIXME: this needs to be customized for other platforms
-LDFLAGS = -framework SDL2 -framework Cocoa
+LDFLAGS := -framework SDL2 -framework Cocoa
 
-# default targets
 default:        all
-all:            $(TARGET)
+.PHONY:	default all clean
 
-# make.inc defines the list of non-TECS object files as $(TCWTECS_OBJS)
-include $(TCWDIR)/src/Makefile.tcw
-
-# common rules
 include $(COMMONDIR)/Makefile.common
 
-# source file directories
-vpath %.c $(TCWDIR)/src
-vpath %.c $(GENDIR)
-vpath %.c $(SRCDIR)
-vpath %.c $(COMMONDIR)
-vpath %.c $(COMMONDIR)/sdl2
-vpath %.cpp $(TCWDIR)/src
+all:            $(TARGET)
 
 clean:
 	rm -rf gen $(OBJS)
 
-# TECS interface code generation
-tecs:
-	$(TECSGEN) $(INCLUDES) $(INCLUDES_TECS) $(MAINCDL)
-
--include gen/Makefile.tecsgen
-
-OBJS := $(OBJS) $(TCWTECS_OBJS) $(TECS_COBJS)
-
 $(TARGET):      $(OBJS)
 	$(LD) $(OBJS) -o $(TARGET) $(LDFLAGS)
+
 

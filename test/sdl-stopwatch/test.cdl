@@ -18,6 +18,8 @@
  */
 
 import("TWTecs.cdl");
+import("tTWSDLDispatcher.cdl");
+import("tTWSDLGraphicsDevice.cdl");
 
 import("tStopwatchAppWindow.cdl");
 import("tSDLApp.cdl");

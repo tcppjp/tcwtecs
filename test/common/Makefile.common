@@ -15,6 +15,35 @@
 # You should have received a copy of the GNU General Public License
 # along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
 
+INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I$(COMMONDIR)/$(TARGETNAME) -I.
+INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR) -I$(COMMONDIR)/$(TARGETNAME)
+
+CFLAGS = $(INCLUDES) -g "-DInline=static inline"
+CXXFLAGS = $(CFLAGS) -std=c++1z
+
+
+# make.inc defines the list of non-TECS object files as $(TCWTECS_OBJS)
+include $(TCWDIR)/src/Makefile.tcw
+
+# source file directories
+vpath %.c $(TCWDIR)/src
+vpath %.c $(GENDIR)
+vpath %.c $(SRCDIR)
+vpath %.c $(COMMONDIR)
+vpath %.c $(COMMONDIR)/$(TARGETNAME)
+vpath %.cpp $(TCWDIR)/src
+
+# TECS interface code generation
+tecs:
+	$(TECSGEN) $(INCLUDES) $(INCLUDES_TECS) $(MAINCDL)
+
+-include gen/Makefile.tecsgen
+
+OBJS := $(OBJS) $(TCWTECS_OBJS) $(TECS_COBJS)
+
+#
+# Embedded bitmap images
+#
 IMAGEDIR := $(COMMONDIR)/images
 
 MAKETCWIMAGE := $(TCWDIR)/tools/maketcwimage.rb
@@ -27,5 +56,3 @@ Image_StartStop.c Image_StartStop.h: $(IMAGEDIR)/StartStop.png $(MAKETCWIMAGE)
 
 Image_Reset.c Image_Reset.h: $(IMAGEDIR)/Reset.png $(MAKETCWIMAGE)
 	$(MAKETCWIMAGE) -i $(IMAGEDIR)/Reset.png -f mono -n Image_Reset -o Image_Reset
-
-tDigitsViewCore.o: Image_Digits.c Image_Digits.h
