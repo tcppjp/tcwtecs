@@ -21,15 +21,84 @@ import("sTWDispatcherControl.cdl");
 import("sTWDispatchTarget.cdl");
 import("sTWDispatcherLink.cdl");
 import("sTWTimerManagerLink.cdl");
+import("sTWBasicDispatcherControl.cdl");
+import("sTWBasicDispatcherDriverControl.cdl");
+import("sTWBasicDispatcherDriverEvent.cdl");
+import("sTWDeferredDispatchControl.cdl");
+import("tTWDeferredDispatch.cdl");
 
-celltype tTWBasicDispatcher
+/** @internal */
+[active]
+celltype tTWBasicDispatcherCore
 {
     entry sTWDispatcherControl eDispatcher;
-
     entry sTWDispatcherLink eDispatcherLink;
+    call sTWTimerManagerLink cTimerManager;
+    entry sTWBasicDispatcherControl eBasicDispatcher;
+    [optional] call sTWBasicDispatcherDriverControl cDriverControl;
+    entry sTWBasicDispatcherDriverEvent eDriverEvent;
 
-    /** 内部的に使用されます。結合しないで下さい。*/
+    call sTWDeferredDispatchControl cTimeoutDispatch;
+    entry sTWDispatchTarget eTimeoutDispatch;
+
     [optional, dynamic] call sTWDispatchTarget cTarget;
 
+    var {
+        intptr_t currentTimeoutToken;
+        uint8_t deferredDispatchPending = 0;
+    };
+};
+
+/**
+ * ベアメタル (OS無し) 向けのディスパッチャです。
+ */
+ [active]
+composite tTWBasicDispatcher
+{
+    /**
+     * ディスパッチャの制御に使用する受け口です。
+     */
+    entry sTWDispatcherControl eDispatcher;
+
+    /**
+     * `tTWTimerManager::cDispatcherLink` に結合して下さい。
+     */
+    entry sTWDispatcherLink eDispatcherLink;
+
+    /**
+     * `tTWTimerManager::eTimerManager` に結合して下さい。
+     */
     call sTWTimerManagerLink cTimerManager;
+
+    /**
+     * `tTWBasicDispatcher` 固有の制御に使用する受け口です。
+     */
+    entry sTWBasicDispatcherControl eBasicDispatcher;
+
+    /**
+     * `tTWBasicDispatcher` のハードウェア依存処理の処理を実装するドライバに結合するための呼び口です。
+     */
+    [optional] call sTWBasicDispatcherDriverControl cDriverControl;
+
+    /**
+     * `tTWBasicDispatcher` のハードウェア依存処理の処理を実装するドライバに結合するための受け口です。
+     */
+    entry sTWBasicDispatcherDriverEvent eDriverEvent;
+
+    cell tTWDeferredDispatch TimeoutDispatch {
+        cTimerManager => composite.cTimerManager;
+    };
+
+    cell tTWBasicDispatcherCore Core {
+        cTimerManager => composite.cTimerManager;
+        cDriverControl => composite.cDriverControl;
+
+        cTimeoutDispatch = TimeoutDispatch.eDeferredDispatch;
+        eTimeoutDispatch <= TimeoutDispatch.cTarget;
+    };
+
+    eDispatcher => Core.eDispatcher;
+    eDispatcherLink => Core.eDispatcherLink;
+    eBasicDispatcher => Core.eBasicDispatcher;
+    eDriverEvent => Core.eDriverEvent;
 };

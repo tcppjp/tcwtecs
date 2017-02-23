@@ -1,0 +1,53 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("TWTypes.cdl");
+
+signature sTWBasicDispatcherDriverControl {
+    /**
+     * 長くとも割込みが発生するまでプログラムの実行を停止します。
+     */
+    void waitForInterrupt(void);
+
+    /**
+     * ハードウェアタイマを設定することにより、指定時間後に、
+     * sTWBasicDispatcherDriverEvent::handleTimeout が呼び出されるようにします。
+     */
+    void setTimeout([in] TWDuration duration);
+
+    /**
+     * setTimeout の設定を取り消します。
+     */
+    void clearTimeout(void);
+
+    /**
+     * 割込みの禁止を要求します。
+     */
+    void disableInterrupts(void);
+
+    /**
+     * 割込みの禁止を解除します。
+     */
+    void enableInterrupts(void);
+
+    /**
+     * 時刻を取得します。基準とする時刻は任意ですが、それは変化してはいけません。また、取得される時刻は stable である必要があります。
+     */
+    TWTimePoint getTime(void);
+};
