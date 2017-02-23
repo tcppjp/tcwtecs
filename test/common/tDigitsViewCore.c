@@ -13,7 +13,7 @@
  *   void           cBoundsSource_get( TWRect* outRect );
  * call port: cDrawingContext signature: sTWDrawingContext context:task
  *   void           cDrawingContext_fillRect( TWColor color, const TWRect* rect );
- *   void           cDrawingContext_drawBitmap( const char* data, TWPixelFormat format, const TWSize* bitmapSize, uint32_t numBytes, const TWRect* inRect, const TWPoint* outLoc, TWColor monoColor );
+ *   void           cDrawingContext_drawBitmap( const char* data, uint32_t numBytes, const TWBitmapInfo* info, uint16_t infoSize, const TWRect* inRect, const TWPoint* outLoc );
  * call port: cViewControl signature: sTWViewControl context:task
  *   TWViewStyle    cViewControl_getStyle( );
  *   void           cViewControl_getBounds( TWRect* outRect );
@@ -21,14 +21,14 @@
  *   void           cViewControl_setNeedsUpdate( );
  * call port: cTextSource signature: sStringValueSource context:task
  *   void           cTextSource_get( char* outString, uint16_t bufferSize );
+ * call port: cBitmapData signature: sBitmapData context:task
+ *   void           cBitmapData_get( const char** data, uint32_t* numBytes, TWBitmapInfoHeader* infoHeader );
  *
  * #[</PREAMBLE>]# */
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
 #include <stdlib.h>
 #include "tDigitsViewCore_tecsgen.h"
-#include "Image_Digits.h"
-
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
@@ -116,10 +116,14 @@ ePaintEvent_paint(CELLIDX idx)
 	cTextSource_get(str, 32);
 	str[31] = 0;
 
-	int textY = (h - kGlyphHeight) >> 1;
-
+	const char *bitmapData;
+	uint32_t bitmapSize;
 	TWBitmapInfo info;
-	info.header = Image_Digits_InfoHeader;
+	cBitmapData_get(&bitmapData, &bitmapSize, &info.header);
+
+	int textH = info.header.height;
+	int textY = (h - textH) >> 1;
+
 	info.mono.palette[0] = TWMakeColor(0, 0, 0);
 	info.mono.palette[1] = TWMakeColor(255, 255, 0);
 
@@ -127,10 +131,9 @@ ePaintEvent_paint(CELLIDX idx)
 	for (const char *c = str; *c; ++c) {
 		const struct DigitsViewGlyphInfo *glyph = FindGlyph(*c);
 		if (glyph) {
-			TWSetRect(&r, glyph->x, 0, glyph->w, kGlyphHeight);
+			TWSetRect(&r, glyph->x, 0, glyph->w, textH);
 			p = TWMakePoint(x, textY);
-			cDrawingContext_drawBitmap(Image_Digits_Data, Image_Digits_Size,
-				&info, sizeof(info), &r, &p);
+			cDrawingContext_drawBitmap(bitmapData, bitmapSize, &info, sizeof(info), &r, &p);
 			x += glyph->w;
 		}
 	}
@@ -140,7 +143,7 @@ ePaintEvent_paint(CELLIDX idx)
 	cDrawingContext_fillRect(info.mono.palette[0], &r);
 	TWSetRect(&r, 1, 1, w - 2, textY - 1);
 	cDrawingContext_fillRect(info.mono.palette[0], &r);
-	TWSetRect(&r, 1, textY + kGlyphHeight, w - 2, h - 1 - textY - kGlyphHeight);
+	TWSetRect(&r, 1, textY + textH, w - 2, h - 1 - textY - textH);
 	cDrawingContext_fillRect(info.mono.palette[0], &r);
 }
 

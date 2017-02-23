@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("sBitmapData.cdl");
+import("TWTecs.cdl");
+
+celltype tBitmapSource
+{
+    entry sBitmapData eImageData;
+
+    attr {
+        [omit] const char *imageName;
+
+        /** @private */
+        const char *data = C_EXP("$id$_Data");
+
+        /** @private */
+        uint32_t dataSize = C_EXP("$id$_Size");
+
+        /** @private */
+        const TWBitmapInfoHeader *infoHeader = C_EXP("&$id$_InfoHeader");
+    };
+
+    FACTORY {
+        write("Makefile.tecsgen", "empty :=");
+        write("Makefile.tecsgen", "space := $(empty) $(empty)");
+    };
+
+    factory {
+        // Tailored for our examples!
+        write("$ct$_factory.h", "#include \"Image_%s.h\"", imageName);
+        write("$ct$_factory.h", "#define $id$_Data Image_%s_Data", imageName);
+        write("$ct$_factory.h", "#define $id$_Size Image_%s_Size", imageName);
+        write("$ct$_factory.h", "#define $id$_InfoHeader Image_%s_InfoHeader", imageName);
+        write("Makefile.tecsgen", "OBJS := $(subst $(space)Image_%s.o,,$(OBJS))", imageName); // remove duplicate
+        write("Makefile.tecsgen", "OBJS := $(OBJS) Image_%s.o", imageName);
+
+        // note: Image_%s.[ch] を生成するルールは Makefile.common で定義されています。
+    };
+};

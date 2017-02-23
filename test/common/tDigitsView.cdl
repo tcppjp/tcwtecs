@@ -19,6 +19,9 @@
 
 import("TWTecs.cdl");
 import("sStringValueSource.cdl");
+import("tBitmapSource.cdl");
+import("sBitmapData.cdl");
+
 
 celltype tDigitsViewCore {
     entry sTWPaintEvent ePaintEvent;
@@ -29,6 +32,8 @@ celltype tDigitsViewCore {
 
     call sStringValueSource cTextSource;
     entry sTWValueSourceCallback eTextSource;
+
+    call sBitmapData cBitmapData;
 };
 
 composite tDigitsView {
@@ -51,12 +56,18 @@ composite tDigitsView {
     cell tDigitsViewCore Core;
     cell tTWView View;
 
+    cell tBitmapSource DigitsBitmap {
+        imageName = "Digits";
+    };
+
     cell tDigitsViewCore Core {
         cBoundsSource => composite.cBoundsSource;
         cDrawingContext = View.eDrawingContext;
         cViewControl = View.eControl;
 
         cTextSource => composite.cTextSource;
+
+        cBitmapData = DigitsBitmap.eImageData;
     };
 
     cell tTWView View {
