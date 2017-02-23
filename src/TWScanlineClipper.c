@@ -142,6 +142,11 @@ TWScanlineClipperSubtractSpan(TWScanlineClipperState *state, TWScanlineClipperNo
             //  input:  IIIIIII ...
             // Consume the left part of the input span
             uint_fast16_t margin = span->span.skip - inSpanX;
+            if (margin >= inSpanWidth) {
+                //   span:                XXXXX
+                //  input:      IIIIIIIII
+                break;
+            }
             inSpanWidth -= margin;
             inSpanX = 0;
             // Now:
@@ -165,8 +170,8 @@ TWScanlineClipperSubtractSpan(TWScanlineClipperState *state, TWScanlineClipperNo
                 span->span.width -= overlap;
                 if (span->span.next) {
                     span->span.next->span.skip += overlap;
+                    inSpanX = 0;
                 }
-                inSpanWidth -= overlap;
                 prev = span;
                 span = span->span.next;
             } else {
