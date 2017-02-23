@@ -35,14 +35,13 @@
  * #[</PREAMBLE>]# */
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
-#include "tTestApp_tecsgen.h"
+#include "tSDLApp_tecsgen.h"
 
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
 #endif
 
-/* entry port function #_TEPF_# */
 /* #[<POSTAMBLE>]#
  *   Put non-entry functions below.
  * #[</POSTAMBLE>]#*/
@@ -50,7 +49,7 @@
 int main(int argc, char **argv) {
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS | SDL_INIT_VIDEO);
     cSDLDispatcher_initialize();
-	cSDL_initialize();
-	cDesktop_repaintAll();
-	cSDLDispatcher_enterMainLoop();
+    cSDL_initialize();
+    cDesktop_repaintAll();
+    cSDLDispatcher_enterMainLoop();
 }

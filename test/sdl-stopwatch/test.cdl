@@ -20,6 +20,7 @@
 import("TWTecs.cdl");
 
 import("tStopwatchAppWindow.cdl");
+import("tSDLApp.cdl");
 
 cell tTWSDLDispatcher Dispatcher {
 };
@@ -69,15 +70,7 @@ cell tStopwatchAppWindow MainWindow {
 	cTimerManager = TimerManager.eTimerManager;
 };
 
-[active, singleton]
-celltype tTestApp {
-	call sTWSDLGraphicsDeviceControl cSDL;
-	call sTWSDLDispatcherControl cSDLDispatcher;
-
-	call sTWDesktopControl cDesktop;
-};
-
-cell tTestApp App {
+cell tSDLApp App {
 	cSDL = SDL.eControl;
 	cSDLDispatcher = Dispatcher.eSDLDispatcher;
 

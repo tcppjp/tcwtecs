@@ -21,8 +21,8 @@ CC = clang
 CXX = clang++
 LD = clang++
 
-INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I.
-INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR)
+INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I$(COMMONDIR)/sdl2 -I.
+INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR) -I$(COMMONDIR)/sdl2
 
 CFLAGS = $(INCLUDES) -g "-DInline=static inline"
 CXXFLAGS = $(CFLAGS) -std=c++1z
@@ -45,6 +45,7 @@ vpath %.c $(TCWDIR)/src
 vpath %.c $(GENDIR)
 vpath %.c $(SRCDIR)
 vpath %.c $(COMMONDIR)
+vpath %.c $(COMMONDIR)/sdl2
 vpath %.cpp $(TCWDIR)/src
 
 clean:
