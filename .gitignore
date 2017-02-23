@@ -40,7 +40,7 @@ DerivedData
 !*.lib
 !*.bld
 mbed_settings.py
-BUILD
+/test/*/mbed-app/BUILD
 
 # pipenv
 .venv
