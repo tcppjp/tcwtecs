@@ -36,7 +36,7 @@
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eImageData_get(CELLIDX idx, const char** data, uint32_t* numBytes, TWBitmapInfoHeader* infoHeader)
+eBitmapData_get(CELLIDX idx, const char** data, uint32_t* numBytes, TWBitmapInfoHeader* infoHeader)
 {
 	CELLCB	*p_cellcb = GET_CELLCB(idx);
 	*data = ATTR_data;

@@ -101,8 +101,8 @@ eSuperview_paint(CELLIDX idx, const TWRect* clipRect, const TWRect* globalBounds
 
 	// paint subviews
 	for (int_t i = NCP_cSubview - 1; i >= 0; --i) {
-		cSubview_subtractClippingRect(i, &new_clip, &self_glob, 1);
 		cSubview_paint(i, &new_clip, &self_glob);
+		cSubview_subtractClippingRect(i, &new_clip, &self_glob, 1);
 	}
 
 	// clip children

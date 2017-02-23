@@ -28,6 +28,7 @@ import("sStopwatchControl.cdl");
 import("tDigitsView.cdl");
 import("tSimpleButton.cdl");
 import("tStopwatch.cdl");
+import("tBitmapView.cdl");
 
 cell tTWSDLDispatcher Dispatcher {
 };
@@ -89,10 +90,19 @@ composite tMainWindow {
 	cell tSimpleButton StartStopButton;
 	cell tSimpleButton ResetLapButton;
 	cell tDigitsView DigitsView;
+	cell tBitmapView StartStopBitmapView;
+	cell tBitmapView ResetBitmapView;
 
 	cell tMainWindowCore Core;
 
 	cell tStopwatch Stopwatch;
+
+	cell tBitmapSource StartStopBitmap {
+		imageName = "StartStop";
+	};
+	cell tBitmapSource ResetBitmap {
+		imageName = "Reset";
+	};
 
 	cell tTWStaticRectSource View_Bounds {
 		x = 0; y = 0; w = 300; h = 70;
@@ -110,8 +120,10 @@ composite tMainWindow {
 
 		// TODO: コールバック結合で記述したい
 		cSubview[0] = StartStopButton.eSuperview;
-		cSubview[1] = ResetLapButton.eSuperview;
-		cSubview[2] = DigitsView.eSuperview;
+		cSubview[1] = StartStopBitmapView.eSuperview;
+		cSubview[2] = ResetLapButton.eSuperview;
+		cSubview[3] = ResetBitmapView.eSuperview;
+		cSubview[4] = DigitsView.eSuperview;
 
 		cPaintEvent = Core.ePaintEvent;
 	};
@@ -157,7 +169,7 @@ composite tMainWindow {
 		x = 250; y = 20; w = 30; h = 30;
 	};
 	cell tSimpleButton ResetLapButton {
-		cSuperview = View.eSubview[1];
+		cSuperview = View.eSubview[2];
 		cTouchInputSuperview = TouchInputElement.eSubview[1];
 		cDesktopLink => composite.cDesktopLink;
 		cKeyboardInputManager => composite.cKeyboardInputManager;
@@ -168,11 +180,41 @@ composite tMainWindow {
 		cAction = Core.eResetLapButtonActivated;
 	};
 
+	cell tTWStaticViewStyleSource BitmapViews_Style {
+		value = C_EXP("TWViewStyleVisible | TWViewStyleClipSiblings");
+	};
+
+	cell tTWStaticRectSource StartStopBitmapView_Bounds {
+		x = 217; y = 27; w = 16; h = 16;
+	};
+	cell tBitmapView StartStopBitmapView {
+		cSuperview = View.eSubview[1];
+		cDesktopLink => composite.cDesktopLink;
+
+		cBoundsSource = StartStopBitmapView_Bounds.eSource;
+		cStyleSource = BitmapViews_Style.eSource;
+
+		cBitmapData = StartStopBitmap.eBitmapData;
+	};
+
+	cell tTWStaticRectSource ResetBitmapView_Bounds {
+		x = 257; y = 27; w = 16; h = 16;
+	};
+	cell tBitmapView ResetBitmapView {
+		cSuperview = View.eSubview[3];
+		cDesktopLink => composite.cDesktopLink;
+
+		cBoundsSource = ResetBitmapView_Bounds.eSource;
+		cStyleSource = BitmapViews_Style.eSource;
+
+		cBitmapData = ResetBitmap.eBitmapData;
+	};
+
 	cell tTWStaticRectSource DigitsView_Bounds {
 		x = 20; y = 18; w = 180; h = 34;
 	};
 	cell tDigitsView DigitsView {
-		cSuperview = View.eSubview[2];
+		cSuperview = View.eSubview[4];
 		cTouchInputSuperview = TouchInputElement.eSubview[2];
 		cDesktopLink => composite.cDesktopLink;
 

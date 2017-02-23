@@ -22,7 +22,7 @@ import("TWTecs.cdl");
 
 celltype tBitmapSource
 {
-    entry sBitmapData eImageData;
+    entry sBitmapData eBitmapData;
 
     attr {
         [omit] const char *imageName;

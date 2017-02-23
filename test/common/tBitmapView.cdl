@@ -18,31 +18,22 @@
  */
 
 import("TWTecs.cdl");
-import("sStringValueSource.cdl");
-import("tBitmapSource.cdl");
 import("sBitmapData.cdl");
 
-
-celltype tDigitsViewCore {
+celltype tBitmapViewCore {
     entry sTWPaintEvent ePaintEvent;
 
     call sTWRectSource cBoundsSource;
     call sTWDrawingContext cDrawingContext;
     call sTWViewControl cViewControl;
 
-    call sStringValueSource cTextSource;
-    entry sTWValueSourceCallback eTextSource;
-
     call sBitmapData cBitmapData;
 };
 
-composite tDigitsView {
+composite tBitmapView {
     [optional] call sTWSuperviewLink cSuperview;
     entry sTWSubviewLink eSuperview;
     call sTWDesktopLink cDesktopLink;
-
-    entry sTWTouchInputSubviewLink eTouchInputSuperview;
-    call sTWTouchInputSuperviewLink cTouchInputSuperview;
 
     call sTWViewStyleSource cStyleSource;
     entry sTWValueSourceCallback eStyleSource;
@@ -50,24 +41,17 @@ composite tDigitsView {
     call sTWRectSource cBoundsSource;
     entry sTWValueSourceCallback eBoundsSource;
 
-    call sStringValueSource cTextSource;
-    entry sTWValueSourceCallback eTextSource;
+    call sBitmapData cBitmapData;
 
-    cell tDigitsViewCore Core;
+    cell tBitmapViewCore Core;
     cell tTWView View;
 
-    cell tBitmapSource DigitsBitmap {
-        imageName = "Digits";
-    };
-
-    cell tDigitsViewCore Core {
+    cell tBitmapViewCore Core {
         cBoundsSource => composite.cBoundsSource;
         cDrawingContext = View.eDrawingContext;
         cViewControl = View.eControl;
 
-        cTextSource => composite.cTextSource;
-
-        cBitmapData = DigitsBitmap.eBitmapData;
+        cBitmapData => composite.cBitmapData;
     };
 
     cell tTWView View {
@@ -80,26 +64,7 @@ composite tDigitsView {
         cPaintEvent = Core.ePaintEvent;
     };
 
-    cell tTWTouchInputElement TouchInputElement {
-        cSuperview => composite.cTouchInputSuperview;
-
-        cBoundsSource => composite.cBoundsSource;
-        cStyleSource => composite.cStyleSource;
-    };
-
-    cell tTWValueSourceCallbackSplitter BoundsSplitter {
-        cCallback[0] = View.eBoundsSource;
-        cCallback[1] = TouchInputElement.eBoundsSource;
-    };
-
-    cell tTWValueSourceCallbackSplitter StyleSplitter {
-        cCallback[0] = View.eStyleSource;
-        cCallback[1] = TouchInputElement.eStyleSource;
-    };
-
     composite.eSuperview => View.eSuperview;
-    composite.eStyleSource => BoundsSplitter.eCallback;
-    composite.eBoundsSource => StyleSplitter.eCallback;
-    composite.eTouchInputSuperview => TouchInputElement.eSuperview;
-    composite.eTextSource => Core.eTextSource;
+    composite.eStyleSource => View.eStyleSource;
+    composite.eBoundsSource => View.eBoundsSource;
 };

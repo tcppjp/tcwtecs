@@ -5,6 +5,9 @@ gen
 Image_*.c
 Image_*.h
 
+# asset sources
+/test/common/assets
+
 # Xcode project
 DerivedData
 *.xcodeproj
