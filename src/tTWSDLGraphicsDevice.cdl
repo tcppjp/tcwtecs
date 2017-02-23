@@ -40,7 +40,7 @@ celltype tTWSDLGraphicsDeviceCore
 
 	entry sTWSDLGraphicsDeviceControl eControl;
 
-	entry sTWSDLEvent eSDLEvent; // TODO: implement this!
+	entry sTWSDLEvent eSDLEvent;
 
 	attr {
 		uint16_t width;

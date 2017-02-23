@@ -17,11 +17,6 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- *  This CDL application is well-organized using composite celltypes, but
- *  doesn't work yet with the latest version (at the time of writing) of tecsgen.
- */
-
 import("TWTecs.cdl");
 
 import("sStopwatchControl.cdl");
