@@ -1,0 +1,23 @@
+{
+    "default": {
+        "mbed-cli": {
+            "version": "==1.0.0",
+            "hash": "sha256:6bd8a7671b17adfccaff6c87717ba8d4e7fc3082f12d022d1632b722c79e6c27"
+        }
+    },
+    "develop": {},
+    "_meta": {
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ],
+        "requires": {
+            "python_version": "2.7"
+        },
+        "hash": {
+            "sha256": "fc08159c8daa0b551ae70ca15ef50fff6a49e786b6bfe79fe276a34acaa06d95"
+        }
+    }
+}

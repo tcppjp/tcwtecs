@@ -4,6 +4,8 @@
 gen
 Image_*.c
 Image_*.h
+*.pyc
+libapp.a
 
 # asset sources
 /test/common/assets
@@ -23,3 +25,22 @@ DerivedData
 
 # OS X's infamous thingy
 .DS_Store
+
+# mbed-cli
+#
+# FIXME: should I exclude `.mbed`?
+#
+# https://github.com/ARMmbed/mbed-cli:
+#
+# > As a rule, because mbed_settings.py contains local settings
+# > (possibly relevant only to a single OS on a single machine), it should not be versioned.
+#
+.temp
+**/vendor/**
+!*.lib
+!*.bld
+mbed_settings.py
+BUILD
+
+# pipenv
+.venv

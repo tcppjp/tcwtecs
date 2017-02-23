@@ -1,0 +1,76 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("TWTecs.cdl");
+
+import("tStopwatchAppWindow.cdl");
+import("tMyDispatcher.cdl");
+import("tMyGraphicsDevice.cdl");
+import("tMyTouchInputDriver.cdl");
+import("tMyApp.cdl");
+
+cell tMyDispatcher Dispatcher {
+};
+
+cell tTWTimerManager TimerManager {
+	cDispatcherLink = Dispatcher.eDispatcherLink;
+	eTimerManager <= Dispatcher.cTimerManager;
+};
+
+cell tTWKeyboardInputManager KeyboardInputManager {
+};
+
+cell tTWTouchInputManager TouchInputManager {
+	maxNumTouches = 1;
+	cElement[0] = TouchInputManager.eNullElementLink;
+};
+
+cell tMyGraphicsDevice GraphicsDevice {
+};
+
+cell tMyTouchInputDriver TouchInputDriver {
+	eInitialize <= Dispatcher.cInitializer[0];
+	cDriverEvent = TouchInputManager.eDriverEvent;
+	cTimerManager = TimerManager.eTimerManager;
+};
+
+cell tTWDesktop Desktop {
+	cGraphicsDevice = GraphicsDevice.eGraphicsDevice;
+	eGraphicsDevice <= GraphicsDevice.cGraphicsDevice;
+	cTimerManager = TimerManager.eTimerManager;
+};
+
+cell tStopwatchAppWindow MainWindow {
+	cSuperview = Desktop.eSubview;
+	eSuperview <= Desktop.cSubview;
+
+	cDesktopLink = Desktop.eDesktopLink;
+	cKeyboardInputManager = KeyboardInputManager.eControl;
+
+	cTouchInputSuperview = TouchInputManager.eSubview;
+	eTouchInputSuperview <= TouchInputManager.cSubview;
+
+	cDispatcher = Dispatcher.eDispatcher;
+	cTimerManager = TimerManager.eTimerManager;
+};
+
+cell tMyApp App {
+	eInitialize <= Dispatcher.cInitializer[1];
+	cDesktop = Desktop.eDesktop;
+};

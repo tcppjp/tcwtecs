@@ -15,30 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
 
-TARGETNAME := sdl2
+TARGETNAME := grpeach
 
 TECSGEN := tecsgen
 
-CC = clang
-CXX = clang++
-LD = clang++
+CC = arm-none-eabi-gcc
+CXX = arm-none-eabi-g++
+LD = arm-none-eabi-g++
+AR = arm-none-eabi-ar
 
-CFLAGS := -g
-
-# FIXME: this needs to be customized for other platforms
-LDFLAGS := -framework SDL2 -framework Cocoa
+CFLAGS := -mcpu=cortex-a9 -mthumb -mthumb-interwork -marm -march=armv7-a -mfpu=vfpv3 -mfloat-abi=hard -mno-unaligned-access
+CFLAGS := $(CFLAGS) -ffunction-sections -fdata-sections -fno-builtin -funsigned-char -fomit-frame-pointer
+CFLAGS := $(CFLAGS) -Os
 
 default:        all
+all:            $(TARGET)
+
 .PHONY:	default all clean
 
 include $(COMMONDIR)/Makefile.common
-
-all:            $(TARGET)
 
 clean:
 	rm -rf gen $(OBJS)
 
 $(TARGET):      $(OBJS)
-	$(LD) $(OBJS) -o $(TARGET) $(LDFLAGS)
-
+	rm -f $(TARGET)
+	$(AR) rcs $(TARGET) $(OBJS)
 

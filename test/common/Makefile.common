@@ -18,9 +18,8 @@
 INCLUDES := -I$(TCWDIR)/include -I$(GENDIR) -I$(COMMONDIR) -I$(COMMONDIR)/$(TARGETNAME) -I.
 INCLUDES_TECS := -I$(TCWDIR)/src -I$(SRCDIR) -I$(COMMONDIR) -I$(COMMONDIR)/$(TARGETNAME)
 
-CFLAGS = $(INCLUDES) -g "-DInline=static inline"
-CXXFLAGS = $(CFLAGS) -std=c++1z
-
+CFLAGS := $(CFLAGS) $(INCLUDES) "-DInline=static inline"
+CXXFLAGS := $(CFLAGS) -std=c++1z
 
 # make.inc defines the list of non-TECS object files as $(TCWTECS_OBJS)
 include $(TCWDIR)/src/Makefile.tcw
