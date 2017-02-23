@@ -19,5 +19,5 @@
 
 signature sStringValueSource
 {
-    void get([out, size_is(bufferSize)] char *outString, [in] uint16_t bufferSize);
+    void get([out, string(bufferSize)] char *outString, [in] uint16_t bufferSize);
 };
