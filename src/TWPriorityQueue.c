@@ -33,8 +33,6 @@ static uint_fast8_t TWULog2(uint32_t value)
     return ret;
 }
 
-// WARNING! This code is NOT tested at all!
-
 static void TWPQSwapNodeAndParent(TWPQHeader *header, TWPQNode *node, TWPQNode *parent)
 {
     assert(node);

@@ -28,6 +28,48 @@ import("sTWRectSource.cdl");
 import("sTWValueSourceCallback.cdl");
 import("sTWDrawingContext.cdl");
 
+/**
+ * ビューは TCW for TECS における GUI の最小管理単位であり、以下の機能を提供します。
+ *
+ *  - ビュー階層の表現
+ *  - 画面上の占有領域 (境界長方形) の定義
+ *  - ビューのコンテンツの描画
+ *
+ * 基本的な使用方法
+ * -------------
+ *
+ * ビューを使用する為には、以下の使用法に従う必要があります。
+ *
+ * ### 階層の表現
+ *
+ * `cSuperView`, `eSuperview`, `cSubview`, `eSubview` を使用して、ビューの階層を表現します。
+ * `cSuperView`, `eSuperview` をそれぞれ親ビューの `eSubview`, `cSubview` に結合して下さい。
+ * また、 `cDesktopLink` をビューが属するデスクトップの `tTWDesktop::eDesktopLink` に結合する必要があります。
+ *
+ * ### 境界長方形
+ *
+ * ビューの境界長方形は、`TWRect` を使用して、親ビュー内のビュー座標系で定義されます。
+ * `BoundsSource` プロパティ (`cBoundsSource`, `eBoundsSource` のペア) を使用して境界長方形を定義します。
+ *
+ * ### 再描画イベントの処理
+ *
+ * `cPaintEvent::paint` が、ビューの再描画が必要になったときに呼ばれるので、独自に定義したセルにこれを結合してください。
+ * これが呼ばれた際には、対応するビューの `eDrawingContext` を経由してビュー全体の描画を行って下さい。
+ *
+ * `eDrawingContext` の座標系はビューの境界長方形の左上を基準としています。
+ *
+ * ### ビューの制御
+ *
+ * `eControl` を呼ぶことにより、ビューの制御が
+ *
+ * コンポーネント化
+ * -------------
+ *
+ * 新たなタイプのビューを定義する場合、以下のセルを持つ複合セルタイプを定義する必要があります。
+ *
+ * TODO:
+ *
+ */
 celltype tTWView
 {
 	// Join these to the superview
