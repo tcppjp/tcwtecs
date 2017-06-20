@@ -74,4 +74,5 @@ cell tMyApp App {
 
 	cMyDispatcher = Dispatcher.eMyDispatcher;
 	cMyGraphicsDevice = GraphicsDevice.eMyGraphicsDevice;
+	cMyTouchInputDriver = TouchInputDriver.eMyTouchInputDriver;
 };

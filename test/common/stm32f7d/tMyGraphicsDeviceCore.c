@@ -61,6 +61,7 @@
  *   void           cGraphicsDevice_resize( );
  *
  * #[</PREAMBLE>]# */
+#include <string.h>
 #include "tMyGraphicsDeviceCore.h"
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
@@ -206,6 +207,9 @@ eOutput_update(const TWRect* rect)
 void
 eMyGraphicsDevice_initialize()
 {
+    // Clear the framebuffer
+    memset((void *)LCD_FRAME_BUFFER, 0, LCD_WIDTH * LCD_HEIGHT * 2);
+
     // Configure LTDC for the target board's integrated display
     g_hltdc.Init.HorizontalSync = 40;
     g_hltdc.Init.VerticalSync = 9;

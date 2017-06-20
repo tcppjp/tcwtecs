@@ -17,22 +17,7 @@
  * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import("TWTecs.cdl");
-import("sMyDispatcherControl.cdl");
-import("sMyGraphicsDeviceControl.cdl");
-import("sMyTouchInputDriverControl.cdl");
-
-// *_tecsgen.h can use `assert`, so this is the only way to make sure `assert` is
-// defined at the point of its usage
-import_C("myassert.h");
-
-[active, singleton]
-celltype tMyApp {
-    entry sTWDispatchTarget eInitialize;
-
-    call sMyDispatcherControl cMyDispatcher;
-    call sMyGraphicsDeviceControl cMyGraphicsDevice;
-    call sMyTouchInputDriverControl cMyTouchInputDriver;
-
-    call sTWDesktopControl cDesktop;
+signature sMyTouchInputDriverControl
+{
+    void initialize(void);
 };

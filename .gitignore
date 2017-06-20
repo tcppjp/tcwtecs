@@ -22,6 +22,7 @@ DerivedData
 # executables of example project
 /test/*/build/*.exe
 /test/*/build/test
+/test/*/build/test.*
 
 # OS X's infamous thingy
 .DS_Store

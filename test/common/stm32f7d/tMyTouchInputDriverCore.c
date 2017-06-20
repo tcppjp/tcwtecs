@@ -34,29 +34,43 @@
  * #[</PREAMBLE>]# */
 
 /* Put prototype declaration and/or variale definition here #_PAC_# */
+#include <assert.h>
 #include "tMyTouchInputDriverCore_tecsgen.h"
+
+#include "stm32f7xx_hal.h"
+#include "stm32746g_discovery.h"
+#include "stm32746g_discovery_ts.h"
+#include "stm32746g_discovery_lcd.h"
 
 #ifndef E_OK
 #define	E_OK	0		/* success */
 #define	E_ID	(-18)	/* illegal ID */
 #endif
 
+static uint8_t g_last_touch_valid = 0;
+static uint16_t g_last_touch_x;
+static uint16_t g_last_touch_y;
+
 /* entry port function #_TEPF_# */
-/* #[<ENTRY_PORT>]# eInitialize
- * entry port: eInitialize
- * signature:  sTWDispatchTarget
+/* #[<ENTRY_PORT>]# eMyTouchInputDriver
+ * entry port: eMyTouchInputDriver
+ * signature:  sMyTouchInputDriverControl
  * context:    task
  * #[</ENTRY_PORT>]# */
 
-/* #[<ENTRY_FUNC>]# eInitialize_main
- * name:         eInitialize_main
- * global_name:  tMyTouchInputDriverCore_eInitialize_main
+/* #[<ENTRY_FUNC>]# eMyTouchInputDriver_initialize
+ * name:         eMyTouchInputDriver_initialize
+ * global_name:  tMyTouchInputDriverCore_eMyTouchInputDriver_initialize
  * oneway:       false
  * #[</ENTRY_FUNC>]# */
 void
-eInitialize_main(intptr_t param)
+eMyTouchInputDriver_initialize()
 {
-    (void) param;
+    uint8_t status;
+
+    status = BSP_TS_Init(BSP_LCD_GetXSize(), BSP_LCD_GetYSize());
+    assert(status == TS_OK);
+
     cTimer_setInterval(10, 0);
 }
 
@@ -75,7 +89,25 @@ void
 ePoll_main(intptr_t param)
 {
     (void) param;
-    // TODO: implement touch input driver
+
+    TS_StateTypeDef touch_state;
+    BSP_TS_GetState(&touch_state);
+
+    uint8_t num_touches = touch_state.touchDetected;
+
+    if (num_touches) {
+        if (g_last_touch_valid) {
+            cDriverEvent_touchMove(0, TWMakePoint(touch_state.touchX[0], touch_state.touchY[0]));
+        } else {
+            cDriverEvent_touchStart(0, TWMakePoint(touch_state.touchX[0], touch_state.touchY[0]));
+        }
+        g_last_touch_x = touch_state.touchX[0];
+        g_last_touch_y = touch_state.touchY[0];
+        g_last_touch_valid = 1;
+    } else if (g_last_touch_valid) {
+        cDriverEvent_touchEnd(0, TWMakePoint(g_last_touch_x, g_last_touch_y));
+        g_last_touch_valid = 0;
+    }
 }
 
 /* #[<POSTAMBLE>]#

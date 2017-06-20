@@ -55,6 +55,7 @@ CFLAGS := $(MCU)
 CFLAGS := $(CFLAGS) -DSTM32F746xx -DUSE_HAL_DRIVER
 CFLAGS := $(CFLAGS) -I$(HALPATH)/Inc -I$(CMSISPATH)/Device/ST/STM32F7xx/Include -I$(CMSISPATH)/Include
 CFLAGS := $(CFLAGS) -I$(BSPPATH)
+CFLAGS := $(CFLAGS) -I$(BSPPATH)/../Components/ft5336
 CFLAGS := $(CFLAGS) -ffunction-sections -fdata-sections
 CFLAGS := $(CFLAGS) -Os -g
 
@@ -66,6 +67,7 @@ LDFLAGS := $(MCU) -T$(LDSCRIPT) -lc -lm -Wl,-Map=$(TARGET).map,--cref -Wl,--gc-s
 
 vpath %.c $(HALPATH)/Src
 vpath %.c $(BSPPATH)
+vpath %.c $(BSPPATH)/../Components/ft5336
 
 HALOBJS := stm32f7xx_hal_i2c_ex.o \
            stm32f7xx_hal_dma.o \
@@ -91,7 +93,8 @@ BSPOBJS := stm32746g_discovery.o \
 		   stm32746g_discovery_eeprom.o \
 		   stm32746g_discovery_lcd.o \
 		   stm32746g_discovery_sdram.o \
-		   stm32746g_discovery_ts.o
+		   stm32746g_discovery_ts.o \
+		   ft5336.o
 
 default:        all
 all:            $(TARGET).elf $(TARGET).hex $(TARGET).bin

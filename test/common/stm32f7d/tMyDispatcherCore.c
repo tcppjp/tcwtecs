@@ -65,20 +65,6 @@ static uint8_t g_hasPendingDeferredDispatch = 0;
 
 static uint8_t MD_CheckPendingDeferredDispatch(void);
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim == &g_timeoutTimer) {
-        HAL_TIM_Base_Stop_IT(&g_timeoutTimer);
-
-        // We're currently in the Handler mode; we cannot call `handleTimeout`
-        // directly from here
-        cTimerDispatch_start(0);
-    } else {
-        // unreachable
-        assert(false);
-    }
-}
-
 /* entry port function #_TEPF_# */
 /* #[<ENTRY_PORT>]# eDispatcher
  * entry port: eDispatcher
@@ -108,7 +94,7 @@ eDispatcher_invoke(Descriptor( sTWDispatchTarget ) target, intptr_t param)
 TWTimePoint
 eDispatcher_getTime()
 {
-    return __HAL_TIM_GET_COUNTER(&g_stableClock);
+    return __HAL_TIM_GET_COUNTER(&g_stableClock) >> 2;
 }
 
 /* #[<ENTRY_PORT>]# eDispatcherLink
@@ -141,12 +127,14 @@ eDispatcherLink_startDeferredDispatch()
 void
 eDispatcherLink_setTimeout(TWDuration duration)
 {
+    // Use TIM3 for the timeout event generation
+    g_timeoutTimer.Instance = TIM3;
+
     HAL_TIM_Base_Stop_IT(&g_timeoutTimer);
 
-    // FIXME: TIM3 would overflow if duration >= 0x10000
-    g_timeoutTimer.Init.Period = duration;
-    g_timeoutTimer.Init.Prescaler = (SystemCoreClock / 2 / 1000) - 1; // 1kHz
-    g_timeoutTimer.Init.ClockDivision = 0;
+    // FIXME: TIM3 would overflow if duration >= 0x4000
+    g_timeoutTimer.Init.Period = duration * 4;
+    g_timeoutTimer.Init.Prescaler = (SystemCoreClock / 2 / 4000) - 1; // 4kHz (1kHz overflows this field)
     g_timeoutTimer.Init.CounterMode = TIM_COUNTERMODE_UP;
 
     if(HAL_TIM_Base_Init(&g_timeoutTimer) != HAL_OK) {
@@ -231,14 +219,11 @@ eTimerDispatch_main(intptr_t param)
 void
 eMyDispatcher_enterMainLoop()
 {
-    // Use TIM3 for the timeout event generation
-    g_timeoutTimer.Instance = TIM3;
 
     // Use TIM2 (32-bit timer) for the stable clock
     g_stableClock.Instance = TIM2;
     g_stableClock.Init.Period = 0xffffffff;
-    g_stableClock.Init.Prescaler = (SystemCoreClock / 2 / 1000) - 1; // 1kHz
-    g_stableClock.Init.ClockDivision = 0;
+    g_stableClock.Init.Prescaler = (SystemCoreClock / 2 / 4000) - 1; // 4kHz (1kHz overflows this reg)
     g_stableClock.Init.CounterMode = TIM_COUNTERMODE_UP;
 
     if(HAL_TIM_Base_Init(&g_stableClock) != HAL_OK) {
@@ -247,13 +232,19 @@ eMyDispatcher_enterMainLoop()
 
     HAL_TIM_Base_Start(&g_stableClock);
 
+    __disable_irq();
     while (true) {
         while (MD_CheckPendingDeferredDispatch()) {
+            __enable_irq();
             cTimerManager_handleDeferredDispatch();
+            __disable_irq();
         }
+        __enable_irq();
+        // Issue an ISB to ensure a pended interrupt is recognized
+        // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dai0321a/BIHBFEIB.html
+        __ISB();
         __disable_irq();
         __WFI();
-        __enable_irq();
     }
 }
 
@@ -261,12 +252,44 @@ eMyDispatcher_enterMainLoop()
  *   Put non-entry functions below.
  * #[</POSTAMBLE>]#*/
 
-static uint8_t MD_CheckPendingDeferredDispatch(void)
+static uint8_t
+MD_CheckPendingDeferredDispatch(void)
 {
     uint8_t value;
-    __disable_irq();
     value = g_hasPendingDeferredDispatch;
     g_hasPendingDeferredDispatch = 0;
-    __enable_irq();
     return value;
 }
+
+/*
+ *  Callbacks from HAL
+ */
+
+void
+HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim == &g_timeoutTimer) {
+        HAL_TIM_Base_Stop_IT(&g_timeoutTimer);
+
+        // We're currently in the Handler mode; we cannot call `handleTimeout`
+        // directly from here
+        cTimerDispatch_start(0);
+    } else {
+        // unreachable
+        assert(false);
+    }
+}
+
+void
+HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
+{
+    if (htim == &g_timeoutTimer) {
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        HAL_NVIC_SetPriority(TIM3_IRQn, 3, 0);
+        HAL_NVIC_EnableIRQ(TIM3_IRQn);
+    } else if (htim == &g_stableClock) {
+        __HAL_RCC_TIM2_CLK_ENABLE();
+    }
+}
+
+

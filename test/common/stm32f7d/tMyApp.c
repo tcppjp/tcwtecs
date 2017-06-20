@@ -63,6 +63,7 @@
 #include "tMyApp_tecsgen.h"
 
 #include "stm32f7xx_hal.h"
+#include "stm32746g_discovery.h"
 
 #ifndef E_OK
 #define	E_OK	0		/* success */
@@ -102,8 +103,10 @@ main(void)
     HAL_Init();
     SystemClock_Config();
     BSP_SDRAM_Init();
+    BSP_LED_Init(LED1);
 
     cMyGraphicsDevice_initialize();
+    cMyTouchInputDriver_initialize();
 
     cDesktop_repaintAll();
 
@@ -127,17 +130,11 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 8;
 
   ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  assert(ret == HAL_OK);
 
   /* Activate the OverDrive to reach the 200 MHz Frequency */
   ret = HAL_PWREx_EnableOverDrive();
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  assert(ret == HAL_OK);
 
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
   RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
@@ -147,10 +144,7 @@ static void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
   ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_6);
-  if(ret != HAL_OK)
-  {
-    while(1) { ; }
-  }
+  assert(ret == HAL_OK);
 }
 
 static void CPU_CACHE_Enable(void)
