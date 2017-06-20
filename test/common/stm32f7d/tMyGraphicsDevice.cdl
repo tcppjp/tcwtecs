@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2017 Tomoaki Kawada
+ *
+ * This file is part of tcwtecs.
+ *
+ * tcwtecs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * tcwtecs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import("sTWGraphicsDeviceInput.cdl");
+import("sTWGraphicsDeviceOutput.cdl");
+import("tTWRGB565BitmapGraphicsRenderer.cdl");
+import("sTWKeyboardInputDriverEvent.cdl");
+import("sTWTouchInputDriverEvent.cdl");
+import("sMyGraphicsDeviceControl.cdl");
+
+/** @internal */
+[singleton, active]
+celltype tMyGraphicsDeviceCore
+{
+    entry sTWRenderTargetBitmapSource eBitmapSource;
+
+    entry sTWGraphicsDeviceOutput eOutput;
+    call sTWGraphicsDeviceOutput cOutput;
+
+    call sTWGraphicsDeviceInput cGraphicsDevice;
+
+    entry sMyGraphicsDeviceControl eMyGraphicsDevice;
+};
+
+[singleton, active]
+composite tMyGraphicsDevice
+{
+    entry sTWGraphicsDeviceOutput eGraphicsDevice;
+    call sTWGraphicsDeviceInput cGraphicsDevice;
+
+    cell tMyGraphicsDeviceCore Core;
+    cell tTWRGB565BitmapGraphicsRenderer Renderer;
+
+    entry sMyGraphicsDeviceControl eMyGraphicsDevice;
+
+    cell tMyGraphicsDeviceCore Core {
+        cOutput = Renderer.eGraphicsDeviceOutput;
+        cGraphicsDevice => composite.cGraphicsDevice;
+    };
+    cell tTWRGB565BitmapGraphicsRenderer Renderer {
+        cRenderTargetBitmapSource = Core.eBitmapSource;
+    };
+
+    eGraphicsDevice => Core.eOutput;
+
+    eMyGraphicsDevice => Core.eMyGraphicsDevice;
+};

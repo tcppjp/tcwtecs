@@ -30,6 +30,7 @@ vpath %.c $(GENDIR)
 vpath %.c $(SRCDIR)
 vpath %.c $(COMMONDIR)
 vpath %.c $(COMMONDIR)/$(TARGETNAME)
+vpath %.s $(COMMONDIR)/$(TARGETNAME)
 vpath %.cpp $(TCWDIR)/src
 
 # TECS interface code generation

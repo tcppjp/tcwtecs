@@ -1,0 +1,117 @@
+# Copyright (C) 2017 Tomoaki Kawada
+#
+# This file is part of tcwtecs.
+#
+# tcwtecs is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# tcwtecs is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with tcwtecs.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Common Makefile for an STM32F746G-DISCO discovery board based application
+#
+# Following environmental variables must be provided:
+#
+#   HALPATH - Path to STM32F7xx's HAL driver provided by STMicroelectronics
+#             (a directory named "STM32F7xx_HAL_Driver", without a trailing slash)
+#
+#   CMSISPATH - Path to CMSIS containing support files for STM32F7xx provided by
+#             STMicroelectronics (which are located at `$(CMSISPATH)Device/ST/STM32F7xx`)
+#
+#   BSPPATH - Path to STM32746G-DISCO BSP files provided by STMicroelectronics
+#             (which usually can be found at `Drivers/BSP/STM32746G-Discovery`)
+#
+# Example:
+#
+#   HALPATH=$STM32CUBE/Drivers/STM32F7xx_HAL_Driver
+#   CMSISPATH=$STM32CUBE/Drivers/CMSIS
+#   BSPPATH=$STM32CUBE/Drivers/BSP/STM32746G-Discovery
+#
+
+TARGETNAME := stm32f7d
+
+TECSGEN := tecsgen
+
+AS = arm-none-eabi-gcc -x assembler-with-cpp -c
+CC = arm-none-eabi-gcc
+CXX = arm-none-eabi-g++
+LD = arm-none-eabi-g++
+AR = arm-none-eabi-ar
+HEX = arm-none-eabi-objcopy -O ihex
+BIN = arm-none-eabi-objcopy -O binary -S
+SZ = arm-none-eabi-size
+
+MCU := -mcpu=cortex-m7 -mfpu=fpv5-sp-d16 -mfloat-abi=hard -mthumb
+
+CFLAGS := $(MCU)
+CFLAGS := $(CFLAGS) -DSTM32F746xx -DUSE_HAL_DRIVER
+CFLAGS := $(CFLAGS) -I$(HALPATH)/Inc -I$(CMSISPATH)/Device/ST/STM32F7xx/Include -I$(CMSISPATH)/Include
+CFLAGS := $(CFLAGS) -I$(BSPPATH)
+CFLAGS := $(CFLAGS) -ffunction-sections -fdata-sections
+CFLAGS := $(CFLAGS) -Os -g
+
+ASFLAGS := $(MCU) -Wall -fdata-sections -ffunction-sections
+
+LDSCRIPT := $(COMMONDIR)/stm32f7d/STM32F746NGHx_FLASH.ld
+
+LDFLAGS := $(MCU) -T$(LDSCRIPT) -lc -lm -Wl,-Map=$(TARGET).map,--cref -Wl,--gc-sections
+
+vpath %.c $(HALPATH)/Src
+vpath %.c $(BSPPATH)
+
+HALOBJS := stm32f7xx_hal_i2c_ex.o \
+           stm32f7xx_hal_dma.o \
+           stm32f7xx_hal_pwr.o \
+           stm32f7xx_hal_tim_ex.o \
+           stm32f7xx_hal_dma_ex.o \
+           stm32f7xx_hal_tim.o \
+           stm32f7xx_hal_i2c.o \
+           stm32f7xx_hal.o \
+           stm32f7xx_hal_flash.o \
+           stm32f7xx_hal_rcc_ex.o \
+           stm32f7xx_hal_cortex.o \
+           stm32f7xx_hal_rcc.o \
+           stm32f7xx_hal_flash_ex.o \
+           stm32f7xx_hal_pwr_ex.o \
+           stm32f7xx_hal_gpio.o \
+           stm32f7xx_hal_sdram.o \
+           stm32f7xx_hal_ltdc.o \
+           stm32f7xx_hal_dma2d.o \
+           stm32f7xx_ll_fmc.o
+
+BSPOBJS := stm32746g_discovery.o \
+		   stm32746g_discovery_eeprom.o \
+		   stm32746g_discovery_lcd.o \
+		   stm32746g_discovery_sdram.o \
+		   stm32746g_discovery_ts.o
+
+default:        all
+all:            $(TARGET).elf $(TARGET).hex $(TARGET).bin
+
+.PHONY:	default all clean
+
+include $(COMMONDIR)/Makefile.common
+
+OBJS := $(OBJS) $(HALOBJS) $(BSPOBJS) stm32f7xx_it.o system_stm32f7xx.o startup_stm32f746xx.o syscalls.o
+
+clean:
+	rm -rf gen $(OBJS) $(TARGET).elf $(TARGET).hex $(TARGET).bin $(TARGET).map
+
+$(TARGET).elf:   $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+	$(SZ) $@
+
+$(TARGET).hex:	 $(TARGET).elf
+	$(HEX) $< $@
+
+$(TARGET).bin:	 $(TARGET).elf
+	$(BIN) $< $@
+

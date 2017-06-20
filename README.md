@@ -30,3 +30,8 @@ You need to install [mbed-cli](https://github.com/ARMmbed/mbed-cli) before build
 5. `cp mbed_settings_example.py mbed_settings.py` and edit `mbed_settings.py` to match your building environment
 6. `mbed update` (This might take a minute or an hour)
 7. `mbed compile`
+
+### STM32F746G-Discovery
+
+A sample project for [STM32F746G-Discovery](http://www.st.com/en/evaluation-tools/32f746gdiscovery.html) can be found in the directory `test/stm32f7d-stopwatch`.
+
