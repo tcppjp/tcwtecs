@@ -54,10 +54,20 @@ signature sTWDispatcherLink {
     void clearTimeout(void);
 
     /**
-     * クリティカルセクションの開始を要求します。クリティカルセクション中では、アプリケーションは (いかなるコンテクストにおいても)
-     * `tTWDeferredDispatch::eDeferredDispatch` への呼出しは行なえません。
+     * クリティカルセクションの開始を要求します。クリティカルセクション中では、アプリケーションは
+     *  (いかなるコンテクストにおいても) `tTWDeferredDispatch::eDeferredDispatch`
+     * への呼出しは行なえません。
      *
-     * クリティカルセクションは再帰的であっても良いですが、そうでなくても問題ありません。
+     * クリティカルセクションは、 `tTWTimerManager` で一部の操作をアトミックに行うために
+     * 必要となります。
+     *
+     * `enterCriticalSection` が呼び出された後、必ず対応する `leaveCriticalSection`
+     * への呼び出しが発生します。ネストすることは無いため、クリティカルセクションは再帰的である
+     * 必要はありません。
+     *
+     * ディスパッチャの実装者は、クリティカルセクションの実装方法を明らかにし、
+     * `tTWDeferredDispatch::eDeferredDispatch` への呼出しが行えない状況を
+     * ドキュメントによりアプリケーション開発者に説明する必要があります。
      *
      * tTWTimerManager のみがこれを呼出します。
      */
