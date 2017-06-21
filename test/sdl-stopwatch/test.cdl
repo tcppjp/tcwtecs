@@ -46,6 +46,8 @@ cell tTWSDLGraphicsDevice SDL {
 	title = "TCW for TECS: Stopwatch Example";
 	windowFlags = C_EXP("0");
 
+	numScanlineClipperNodes = 32;
+
 	eSDLEvent <= Dispatcher.cSDLEvent[0];
 
 	cKeyboardInputDriverEvent = KeyboardInputManager.eDriverEvent;

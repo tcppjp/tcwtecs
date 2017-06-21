@@ -49,12 +49,17 @@ composite tMyGraphicsDevice
 
     entry sMyGraphicsDeviceControl eMyGraphicsDevice;
 
+    attr {
+        uint16_t numScanlineClipperNodes = 256;
+    };
+
     cell tMyGraphicsDeviceCore Core {
         cOutput = Renderer.eGraphicsDeviceOutput;
         cGraphicsDevice => composite.cGraphicsDevice;
     };
     cell tTWRGB565BitmapGraphicsRenderer Renderer {
         cRenderTargetBitmapSource = Core.eBitmapSource;
+        numScanlineClipperNodes = composite.numScanlineClipperNodes;
     };
 
     eGraphicsDevice => Core.eOutput;

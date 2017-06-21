@@ -42,6 +42,7 @@ cell tTWTouchInputManager TouchInputManager {
 };
 
 cell tMyGraphicsDevice GraphicsDevice {
+	numScanlineClipperNodes = 32;
 };
 
 cell tMyTouchInputDriver TouchInputDriver {
